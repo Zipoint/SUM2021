@@ -124,7 +124,7 @@ VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
   INT len, R, R1;
   HPEN hPen, hPenOld;
 
-  hPen = GetStockObject(WHITE_PEN);
+  hPen = GetStockObject(BLACK_PEN);
   hPenOld = SelectObject(hMemDC, hPen);
 
   len = sqrt((My - y) * (My - y) + (Mx - x) * (Mx - x));
@@ -134,9 +134,9 @@ VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
   x1 = x + (Mx - x) * (R - R1) / len;
 
   SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-  SetDCBrushColor(hMemDC, RGB(0, 255, 0));
+  SetDCBrushColor(hMemDC, RGB(200, 255, 255));
   Ellipse(hMemDC, x - R, y - R, x + R, y + R);
-  SetDCBrushColor(hMemDC, RGB(0 , 0, 0));
+  SetDCBrushColor(hMemDC, RGB(0, 0, 0));
   Ellipse(hMemDC, x1 - R1, y1 - R1, x1 + R1, y1 + R1);
 
   SelectObject(hMemDC, hPenOld);
