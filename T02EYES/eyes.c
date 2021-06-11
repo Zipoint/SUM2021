@@ -23,8 +23,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
   wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-  wc.hCursor = LoadCursor(NULL, IDC_HAND);
-  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+  wc.hCursor = LoadCursor(NULL, IDC_CROSS);
+  wc.hIcon = LoadIcon(NULL, IDI_QUESTION);
   wc.lpszMenuName = NULL;
   wc.hInstance = hInstance;
   wc.lpszClassName = WND_CLASS_NAME;
@@ -38,7 +38,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 
   hWnd = 
     CreateWindow(WND_CLASS_NAME,
-    "Title",
+    "T02EYES",
     WS_OVERLAPPEDWINDOW,
     CW_USEDEFAULT, CW_USEDEFAULT,
     CW_USEDEFAULT, CW_USEDEFAULT,
@@ -126,15 +126,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
 VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
 {
-  INT len, R, R1;
-  HPEN hPen, hPenOld;
+  INT len, R = 100, R1 = 40;
+  HPEN hPenOld;
 
-  hPen = GetStockObject(BLACK_PEN);
-  hPenOld = SelectObject(hMemDC, hPen);
+  hPenOld = SelectObject(hMemDC, GetStockObject(BLACK_PEN));
 
   len = (INT)(sqrt((My - y) * (My - y) + (Mx - x) * (Mx - x)));
-  R = 100;
-  R1 = 40;
   if (len == 0)
     len++;
   y1 = y + (My - y) * (R - R1) / len;
@@ -143,17 +140,11 @@ VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
   SelectObject(hMemDC, GetStockObject(DC_BRUSH));
   SetDCBrushColor(hMemDC, RGB(200, 200, 200));
   Ellipse(hMemDC, x - R, y - R, x + R, y + R);
+  SetDCBrushColor(hMemDC, RGB(0, 0, 0));
   if (len > R - R1)
-  {
-    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
     Ellipse(hMemDC, x1 - R1, y1 - R1, x1 + R1, y1 + R1);
-  }
   else
-  {
-    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
     Ellipse(hMemDC, Mx - R1, My - R1, Mx + R1, My + R1);
-  }
 
   SelectObject(hMemDC, hPenOld);
-  DeleteObject(hPen);
 }
