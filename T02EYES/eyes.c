@@ -97,6 +97,9 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     GetCursorPos(&pt);
     ScreenToClient(hWnd, &pt);
     Rectangle(hMemDC, 0, 0, w, h);
+    SelectObject(hMemDC, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
+    Rectangle(hMemDC, 0, 0, w, h);
     srand(30);
     for (i = 0; i < 101; i++)
       DrawEye(hMemDC, rand() % w, rand() % h, 50 + rand() % 47, 18 + rand() &8, pt.x, pt.y);
@@ -108,10 +111,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     EndPaint(hWnd, &ps);
     return 0;
 
+  case WM_ERASEBKGND:
+    return 1;
+
   case WM_DESTROY:
     KillTimer(hWnd, 47);
     if (hBm != NULL)
-      DeleteDC(hBm);
+      DeleteObject(hBm);
     PostQuitMessage(0);
     return 0;
   }
@@ -128,13 +134,13 @@ VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
   hPenOld = SelectObject(hMemDC, hPen);
 
   len = sqrt((My - y) * (My - y) + (Mx - x) * (Mx - x));
-  R = 200;
-  R1 = 80;
+  R = 100;
+  R1 = 40;
   y1 = y + (My - y) * (R - R1) / len;
   x1 = x + (Mx - x) * (R - R1) / len;
 
   SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-  SetDCBrushColor(hMemDC, RGB(200, 255, 255));
+  SetDCBrushColor(hMemDC, RGB(200, 200, 200));
   Ellipse(hMemDC, x - R, y - R, x + R, y + R);
   SetDCBrushColor(hMemDC, RGB(0, 0, 0));
   Ellipse(hMemDC, x1 - R1, y1 - R1, x1 + R1, y1 + R1);
