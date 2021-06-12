@@ -15,6 +15,7 @@
 
 LRESULT CALLBACK MyWindowFunc( HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 VOID DrawHand( HDC hDC, INT X0, INT Y0, DOUBLE AngleInDegree, INT L, INT W );
+VOID FlipFullScreen( HWND hWnd );
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd)
 {
@@ -67,7 +68,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   PAINTSTRUCT ps;
   HDC hDC;
   POINT pt;
-  BITMAP bm;
+  BITMAP bm, bmLogo;
   HPEN hPenOld;
   SYSTEMTIME st;
   HFONT hFnt, hFntOld;
@@ -81,8 +82,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   };
   static COLORREF Back;
   static INT h, w;
-  static HDC hDCLogo, hMemDC;
-  static HBITMAP hBmLogo, hBm;
+  static HDC hDCLogo, hMemDC, hMemDCLogo;
+  static HBITMAP hBmLogo, hBm, hBmLogoXor, hBmLogoAND;
 
   switch (Msg)
   {
@@ -92,7 +93,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     if (hBmLogo != NULL)
       DeleteObject(hBmLogo);
     hDC = GetDC(hWnd);
+    if (hBmLogoXor != NULL)
+      DeleteObject(hBmLogoXor);
+    if (hBmLogoAND != NULL)
+      DeleteObject(hBmLogoAND);
     hBmLogo = LoadImage(NULL, "12.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    hBmLogoXor = LoadImage(NULL, "XOR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    hBmLogoAND = LoadImage(NULL, "OR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     if (hBm != NULL)
       DeleteObject(hBm);
     hBm = CreateCompatibleBitmap(hDC, w, h);
@@ -103,11 +110,27 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SendMessage(hWnd, WM_TIMER, 0, 0);
     return 0;
 
+  case WM_GETMINMAXINFO:
+    ((MINMAXINFO *)lParam)->ptMaxTrackSize.y =
+      GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER);
+    return 0;
+
+  case WM_KEYDOWN:
+    if (wParam == VK_ESCAPE)
+      SendMessage(hWnd, WM_CLOSE, 0, 0);
+    return 0;
+
+  case WM_SYSKEYDOWN:
+    if (wParam == VK_RETURN)
+      FlipFullScreen(hWnd);
+    return 0;
+
   case WM_CREATE:
     SetTimer(hWnd, 47, 10, NULL);
     hDC = GetDC(hWnd);
     hDCLogo = CreateCompatibleDC(hDC);
     hMemDC = CreateCompatibleDC(hDC);
+    hMemDCLogo = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
     return 0;
 
@@ -123,14 +146,15 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     GetCursorPos(&pt);
     ScreenToClient(hWnd, &pt);
     GetObject(hBmLogo, sizeof(bm), &bm);
+    GetObject(hBmLogoAND, sizeof(bmLogo), &bmLogo);
     StretchBlt(hMemDC, (w - size) / 2, (h - size) / 2, size, size, hDCLogo, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
     GetLocalTime(&st);
     hPenOld = SelectObject(hMemDC, CreatePen(PS_SOLID, 5, RGB(0 ,0, 0)));
 
     MoveToEx(hMemDC, w / 2, h / 2, NULL);
     angleS = (st.wSecond + st.wMilliseconds / 1000.0) * 2 * pi / 60;
-    //DrawHand(hMemDC, )
     LineTo(hMemDC, w / 2 + size * (sin(angleS) / 3), h / 2 - size * (cos(angleS) / 3));
+    DrawHand(hMemDC, w / 2 + size * (sin(angleS) / 3), h / 2 - size * (cos(angleS) / 3), angleS, size / 18, size / 25);
 
     MoveToEx(hMemDC, w / 2, h / 2, NULL);
     angleM = (st.wMinute + st.wSecond / 60.0) * 2 * pi / 60;
@@ -141,9 +165,10 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     LineTo(hMemDC, w / 2 + size * (sin(angleH) / 5), h / 2 - size * (cos(angleH) / 5));
 
     /*SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
-    SelectObject(hMemDC, GetStockObject(NULL_PEN));
-    Rectangle(hDCLogo, size / 2 - 50, size + 40, size + 80, size + 80);*/
+    SetDCBrushColor(hMemDC, Back);
+    SelectObject(hMemDC, GetStockObject(DC_PEN));
+    SetDCPenColor(hMemDC, Back);
+    Rectangle(hMemDC, size / 2 - 40, size + 40, size + 80, size + 80);*/
 
     hFnt = CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH | FF_SWISS, "");
     hFntOld = SelectObject(hMemDC, hFnt);
@@ -153,8 +178,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     cl = GetPixel(hMemDC, (w - bm.bmWidth) / 2 + 1, (h - bm.bmHeight) / 2 + 1);
     TextOut(hMemDC, w / 2 - 45, (h - size) / 2 + size / 6, Buf, sprintf(Buf, "DayOfWeek:%s", WD[st.wDayOfWeek]));
     TextOut(hMemDC, w / 2 - 45, (h - size) / 2 + size / 5, Buf, sprintf(Buf, "Date:%i.%i.%i", st.wDay, st.wMonth, st.wYear));
-    TextOut(hMemDC, w / 2 - 45, (h - size) / 2 + size / 4
-      , Buf, sprintf(Buf, "Time:%i:%i:%i", st.wSecond, st.wMinute, st.wHour));
+    TextOut(hMemDC, w / 2 - 45, (h - size) / 2 + size / 4, Buf, sprintf(Buf, "Time:%i:%i:%i", st.wSecond, st.wMinute, st.wHour));
+
+    SelectObject(hMemDCLogo, hBmLogoAND);
+    BitBlt(hMemDC, pt.x - bmLogo.bmWidth / 2, pt.y - bmLogo.bmHeight / 2, bmLogo.bmWidth, bmLogo.bmHeight, hMemDCLogo, 0, 0, SRCAND);
+    SelectObject(hMemDCLogo, hBmLogoXor);
+    BitBlt(hMemDC, pt.x - bmLogo.bmWidth / 2, pt.y - bmLogo.bmHeight / 2, bmLogo.bmWidth, bmLogo.bmHeight, hMemDCLogo, 0, 0, SRCINVERT);
 
     SelectObject(hMemDC, hPenOld);
 
@@ -180,6 +209,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
       DeleteObject(hBm);
     DeleteDC(hMemDC);
     DeleteDC(hDCLogo);
+    DeleteDC(hMemDCLogo);
     PostQuitMessage(0);
     return 0;
   }
@@ -187,18 +217,17 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
-VOID DrawHand( HDC hDC, INT X0, INT Y0, DOUBLE AngleInDegree, INT L, INT W )
+VOID DrawHand( HDC hDC, INT X0, INT Y0, DOUBLE AngleInRad, INT L, INT W )
 {
   POINT pnts[] =
   {
-    {0, L}, {W, 0}, {0, -W}, {-W, 0}
+    {X0, L + Y0}, {X0 + W, Y0}, {X0, Y0 - W}, {X0 - W, Y0}
   };
   POINT pnts1[sizeof(pnts) / sizeof(pnts[0])];
   INT i;
-  DOUBLE a, si, co, pi = 3.14159265358979323846;
-  a = AngleInDegree * pi / 180;
-  co = cos(a);
-  si = sin(a);
+  DOUBLE si, co;
+  co = cos(AngleInRad);
+  si = sin(AngleInRad);
 
   for (i = 0; i < sizeof(pnts) / sizeof(pnts[0]); i++)
   {
@@ -207,3 +236,48 @@ VOID DrawHand( HDC hDC, INT X0, INT Y0, DOUBLE AngleInDegree, INT L, INT W )
   }
   Polygon(hDC, pnts1, sizeof(pnts) / sizeof(pnts[0]));
 }
+
+VOID FlipFullScreen( HWND hWnd )
+{
+  static BOOL IsFullScreen = FALSE;
+  static RECT SaveRect;
+
+  if (!IsFullScreen)
+  {
+    HMONITOR hmon;
+    MONITORINFO moninfo;
+    RECT rc;
+
+    IsFullScreen = TRUE;
+
+    /* Goto fullscreen mode */
+
+    /* Store current window size and position */
+    GetWindowRect(hWnd, &SaveRect);
+
+    /* Get nearest monitor */
+    hmon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+
+    /* Get monitor information */
+    moninfo.cbSize = sizeof(MONITORINFO);
+    GetMonitorInfo(hmon, &moninfo);
+
+    rc = moninfo.rcMonitor;
+    AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
+
+    SetWindowPos(hWnd, HWND_TOP,
+      rc.left, rc.top,
+      rc.right - rc.left, rc.bottom - rc.top,
+      SWP_NOOWNERZORDER);
+  }
+  else
+  {
+    IsFullScreen = FALSE;
+
+    /* Restore window size and position */
+    SetWindowPos(hWnd, HWND_TOP,
+      SaveRect.left, SaveRect.top,
+      SaveRect.right - SaveRect.left, SaveRect.bottom - SaveRect.top,
+      SWP_NOOWNERZORDER);
+  }
+} /* End of 'FlipFullScreen' function */
