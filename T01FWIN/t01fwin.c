@@ -54,6 +54,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 {
   PAINTSTRUCT ps;
   HDC hDC;
+  POINT pt;
   HPEN hPen, hPenOld;
   LOGBRUSH lb;
   INT x, y;
@@ -102,9 +103,11 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     /*SelectObject(hDC, GetStockObject(DC_PEN));
     SetDCPenColor(hDC, RGB(0, 0, 0)); */
     SetDCBrushColor(hDC, RGB(255 ,255 ,0));
+    GetCursorPos(&pt);
+    ScreenToClient(hWnd, &pt);
 
-    MoveToEx(hDC, 300, 500, NULL);
-    LineTo(hDC, 330, 300);
+    MoveToEx(hDC, w / 2, h / 2, NULL);
+    LineTo(hDC, pt.x, pt.y);
     LineTo(hDC, 500, 400);
 
     Rectangle(hDC, 10, 10, 300, 300);
