@@ -113,6 +113,11 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   case WM_ERASEBKGND:
     return 1;
 
+  case WM_GETMINMAXINFO:
+    ((MINMAXINFO *)lParam)->ptMaxTrackSize.y =
+      GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER);
+    return 0;
+
   case WM_DESTROY:
     KillTimer(hWnd, 47);
     if (hBm != NULL)
@@ -148,3 +153,48 @@ VOID DrawEye( HDC hMemDC, INT x, INT y, INT x1, INT y1, INT Mx, INT My )
 
   SelectObject(hMemDC, hPenOld);
 }
+
+VOID FlipFullScreen( HWND hWnd )
+{
+  static BOOL IsFullScreen = FALSE;
+  static RECT SaveRect;
+
+  if (!IsFullScreen)
+  {
+    HMONITOR hmon;
+    MONITORINFO moninfo;
+    RECT rc;
+
+    IsFullScreen = TRUE;
+
+    /* Goto fullscreen mode */
+
+    /* Store current window size and position */
+    GetWindowRect(hWnd, &SaveRect);
+
+    /* Get nearest monitor */
+    hmon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+
+    /* Get monitor information */
+    moninfo.cbSize = sizeof(MONITORINFO);
+    GetMonitorInfo(hmon, &moninfo);
+
+    rc = moninfo.rcMonitor;
+    AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
+
+    SetWindowPos(hWnd, HWND_TOP,
+      rc.left, rc.top,
+      rc.right - rc.left, rc.bottom - rc.top,
+      SWP_NOOWNERZORDER);
+  }
+  else
+  {
+    IsFullScreen = FALSE;
+
+    /* Restore window size and position */
+    SetWindowPos(hWnd, HWND_TOP,
+      SaveRect.left, SaveRect.top,
+      SaveRect.right - SaveRect.left, SaveRect.bottom - SaveRect.top,
+      SWP_NOOWNERZORDER);
+  }
+} /* End of 'FlipFullScreen' function */

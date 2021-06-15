@@ -154,7 +154,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     MoveToEx(hMemDC, w / 2, h / 2, NULL);
     angleS = (st.wSecond + st.wMilliseconds / 1000.0) * 2 * pi / 60;
     LineTo(hMemDC, w / 2 + size * (sin(angleS) / 3), h / 2 - size * (cos(angleS) / 3));
-    DrawHand(hMemDC, w / 2 + size * (sin(angleS) / 3), h / 2 - size * (cos(angleS) / 3), angleS, size / 18, size / 25);
+    //DrawHand(hMemDC, w / 2, h / 2, angleS, size / 20, size / 18);
 
     MoveToEx(hMemDC, w / 2, h / 2, NULL);
     angleM = (st.wMinute + st.wSecond / 60.0) * 2 * pi / 60;
@@ -163,12 +163,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     MoveToEx(hMemDC, w / 2, h / 2, NULL);
     angleH = (st.wHour + st.wSecond / 3600.0 + st.wMinute / 60.0) * 2 * pi / 12;
     LineTo(hMemDC, w / 2 + size * (sin(angleH) / 5), h / 2 - size * (cos(angleH) / 5));
-
-    /*SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(hMemDC, Back);
-    SelectObject(hMemDC, GetStockObject(DC_PEN));
-    SetDCPenColor(hMemDC, Back);
-    Rectangle(hMemDC, size / 2 - 40, size + 40, size + 80, size + 80);*/
 
     hFnt = CreateFont(30, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, FIXED_PITCH | FF_SWISS, "");
     hFntOld = SelectObject(hMemDC, hFnt);
@@ -186,9 +180,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     BitBlt(hMemDC, pt.x - bmLogo.bmWidth / 2, pt.y - bmLogo.bmHeight / 2, bmLogo.bmWidth, bmLogo.bmHeight, hMemDCLogo, 0, 0, SRCINVERT);
 
     SelectObject(hMemDC, hPenOld);
-
-    //MoveToEx(hMemDC, 0, 0, NULL);
-    //LineTo(hMemDC, pt.x, pt.y);
 
     return 0;
 
@@ -231,8 +222,8 @@ VOID DrawHand( HDC hDC, INT X0, INT Y0, DOUBLE AngleInRad, INT L, INT W )
 
   for (i = 0; i < sizeof(pnts) / sizeof(pnts[0]); i++)
   {
-    pnts1[i].x = pnts[i].x * co + pnts[i].y * si;
-    pnts1[i].y = pnts[i].y * co - pnts[i].x * si;
+    pnts1[i].x = X0 + pnts[i].x * co + pnts[i].y * si;
+    pnts1[i].y = Y0 + pnts[i].y * co - pnts[i].x * si;
   }
   Polygon(hDC, pnts1, sizeof(pnts) / sizeof(pnts[0]));
 }

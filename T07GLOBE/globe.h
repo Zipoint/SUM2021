@@ -4,11 +4,17 @@
  * PURPOSE: WinAPI windowed application sample.
  */
 
-#include <windows.h>
+#ifndef __globe_h_
+#define __globe_h_
+
 #include <stdlib.h>
+#include <windows.h>
+#include "timer.h"
+#pragma warning(disable: 4244)
+#pragma warning(disable: 4013)
 
 typedef double DBL;
-typedef struct
+typedef struct tagVEC
 {
   DBL X, Y, Z;
 } VEC;
@@ -16,4 +22,8 @@ typedef struct
 LRESULT CALLBACK MyWindowFunc( HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 VOID FlipFullScreen( HWND hWnd );
 VOID GlobeDraw( HDC hDC );
-VOID GlbeSet( DBL Xc, DBL Yc, DBL R );
+VOID GlobeSet( INT W, INT H, DBL R );
+VEC RotateZ( VEC V, DBL Angle );
+VEC RotateY( VEC V, DBL Angle );
+
+#endif __globe_h_

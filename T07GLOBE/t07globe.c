@@ -24,7 +24,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
   wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-  wc.hCursor = LoadCursor(NULL, IDC_CROSS);
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
   wc.hIcon = LoadIcon(NULL, IDI_QUESTION);
   wc.lpszMenuName = NULL;
   wc.hInstance = hInstance;
@@ -52,37 +52,42 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
 
-  while (GetMessage(&msg, NULL, 0, 0))
-  {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
-  return msg.wParam;
+  /* Message loop */
+  while (TRUE)
+    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      if (msg.message == WM_QUIT)
+        break;
+      DispatchMessage(&msg);
+    }
+    else
+      SendMessage(hWnd, WM_TIMER, 30, 0);
+
+  return 30;
 }
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-  PAINTSTRUCT ps;
   HDC hDC;
-  POINT pt;
-  SYSTEMTIME st;
-  static COLORREF Back;
+  PAINTSTRUCT ps;
   static INT h, w;
-  static HDC hDCLogo, hMemDC;
-  static HBITMAP hBmLogo, hBm;
+  static HDC hMemDC;
+  static HBITMAP hBm;
+  static CHAR Buf[100];
 
   switch (Msg)
   {
   case WM_SIZE:
     w = LOWORD(lParam);
     h = HIWORD(lParam);
+
     hDC = GetDC(hWnd);
     if (hBm != NULL)
       DeleteObject(hBm);
     hBm = CreateCompatibleBitmap(hDC, w, h);
     ReleaseDC(hWnd, hDC);
     SelectObject(hMemDC, hBm);
-    GlbeSet(w / 2, h / 2, (w < h ? w : h) * 0.8);
+    GlobeSet(w, h, 1);
     SendMessage(hWnd, WM_TIMER, 0, 0);
     return 0;
 
@@ -94,6 +99,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   case WM_KEYDOWN:
     if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
+    else if (wParam == 'P')
+      GLB_IsPause = GLB_IsPause;
     return 0;
 
   case WM_SYSKEYDOWN:
@@ -104,22 +111,27 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   case WM_CREATE:
     SetTimer(hWnd, 47, 10, NULL);
     hDC = GetDC(hWnd);
-    hDCLogo = CreateCompatibleDC(hDC);
     hMemDC = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
+    hBm = NULL;
+
+    GLB_TimerInit();
     return 0;
 
   case WM_TIMER:
-    InvalidateRect(hWnd, NULL, FALSE);
-
-    SelectObject(hMemDC, GetStockObject(DC_BRUSH));
+    GLB_TimerResponse();
+    SelectObject(hMemDC, GetStockObject(GRAY_BRUSH));
     SelectObject(hMemDC, GetStockObject(NULL_PEN));
     Rectangle(hMemDC, 0, 0, w + 1, h + 1);
-    GetCursorPos(&pt);
-    ScreenToClient(hWnd, &pt);
-    GetLocalTime(&st);
-    GlobeDraw(hMemDC);
 
+    SelectObject(hMemDC, GetStockObject(WHITE_BRUSH));
+    SelectObject(hMemDC, GetStockObject(BLACK_PEN));
+    GlobeDraw(hMemDC);
+    SetBkColor(hMemDC, TRANSPARENT);
+    SetTextColor(hMemDC, RGB(255, 255, 255));
+    TextOut(hMemDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", GLB_FPS));
+
+    InvalidateRect(hWnd, NULL, FALSE);
     return 0;
 
   case WM_PAINT:
@@ -133,12 +145,9 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
   case WM_DESTROY:
     KillTimer(hWnd, 47);
-    if (hBmLogo != NULL)
-      DeleteObject(hBmLogo);
     if (hBm != NULL)
       DeleteObject(hBm);
     DeleteDC(hMemDC);
-    DeleteDC(hDCLogo);
     PostQuitMessage(0);
     return 0;
   }

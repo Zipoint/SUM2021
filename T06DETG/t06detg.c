@@ -88,7 +88,7 @@ VOID Det( VOID )
 
     if (max_col != i)
     {
-      for(y = 0; y < N; y++)
+      for (y = 0; y < N; y++)
         Swap(&A[y][i], &A[y][max_col]);
       det = -det;
     }
