@@ -9,7 +9,7 @@
 #include <windows.h>
 #include "globe.h"
 #define GRID_H 15
-#define GRID_W 31
+#define GRID_W 15
 
 #define PI 3.14159265358979323846
 
@@ -34,7 +34,7 @@ VOID GlobeSet( INT W, INT H, DBL R )
   for (i = 0, theta = 0; i < GRID_H; i++, theta += PI / (GRID_H - 1))
     for (j = 0, phi = 0; j < GRID_W; j++, phi += 2 * PI / (GRID_W - 1))
     {
-      DBL a = 0.05, b = 0.05;
+      DBL a = 0.25, b = 0.25;
       Geom[i][j].X = R * Power(sin(phi), a) * Power(sin(theta), b) * 0.3;
       Geom[i][j].Y = R * Power(cos(theta), a) * 0.4;
       Geom[i][j].Z = Power(sin(theta), a) * Power(cos(phi), b);
@@ -46,18 +46,31 @@ VOID GlobeDraw( HDC hDC )
   INT i, j, r, s = 3, k;
   DBL t = GLB_Time;
   MATR m;
+  DBL Hp, Wp, size = 2, ProjDist;
   static POINT pnts[GRID_H][GRID_W];
 
   r = WinW < WinH ? WinW : WinH;
 
-  m = MatrMulMatr(MatrMulMatr(MatrRotateZ(t * 30), MatrRotateY(t * 18)), MatrTranslate(VecSet(0, fabs(0.8  * sin(t * 5)) - 0.47, 0)));
+  m = MatrMulMatr3(MatrRotateZ(t * 30), MatrRotateY(t * 18), MatrTranslate(VecSet(0, 0 * fabs(0.8 * sin(t * 5)) - 0.47, 0)));
+  m = MatrMulMatr(m, MatrView(VecSet(0, 0, 3), VecSet(0, 0, 0), VecSet(0, 1, 0)));
+
+  Wp = Hp = size;
+  if (WinW > WinH)
+    Wp *= (DBL)WinW / WinH;
+  else
+    Hp *= (DBL)WinH / WinW;
+  ProjDist = size;
+
   for (i = 0; i < GRID_H; i++)
     for (j = 0; j < GRID_W; j++)
     {
       VEC v = PointTransform(Geom[i][j], m);
 
-      pnts[i][j].x = WinW / 2 + v.X * 0.47 * r;
-      pnts[i][j].y = WinH / 2 - v.Y * 0.47 * r;
+      v.X = v.X * ProjDist / -v.Z;
+      v.Y = v.Y * ProjDist / -v.Z;
+
+      pnts[i][j].x = v.X * WinW / Wp + WinW / 2;
+      pnts[i][j].y = -v.Y * WinH / Hp + WinH / 2;
     }
 
 #if 0
@@ -81,19 +94,24 @@ VOID GlobeDraw( HDC hDC )
 #endif /* 0 */
     for (k = 0; k < 1; k++)
     {
-      if (k = 0)
+      /* if (k == 0)
       {
         SelectObject(hDC, GetStockObject(DC_PEN));
         SelectObject(hDC, GetStockObject(DC_BRUSH));
         SetDCPenColor(hDC, RGB(0, 0, 0));
-        SetDCBrushColor(hDC, RGB(200, 200, 200));
+        SetDCBrushColor(hDC, RGB(255, 255, 0));
       }
       else
       {
         SelectObject(hDC, GetStockObject(DC_PEN));
-        SelectObject(hDC, GetStockObject(NULL_BRUSH));
+        SelectObject(hDC, GetStockObject(DC_BRUSH));
+        SetDCBrushColor(hDC, RGB(255, 0, 0));
         SetDCPenColor(hDC, RGB(255, 255, 255));
-      }
+      } */
+
+      SelectObject(hDC, GetStockObject(NULL_PEN));
+      SelectObject(hDC, GetStockObject(DC_BRUSH));
+
       for (i = 0; i < GRID_H - 1; i++)
         for (j = 0; j < GRID_W - 1; j++)
         {
@@ -109,8 +127,13 @@ VOID GlobeDraw( HDC hDC )
                  (pts[1].x - pts[2].x) * (pts[1].y + pts[2].y) +
                  (pts[2].x - pts[3].x) * (pts[2].y + pts[3].y) +
                  (pts[3].x - pts[0].x) * (pts[3].y + pts[0].y);
-          if (coef <= 0 && k == 0 || coef >= 0 && k == 1)
+          if (coef >= 0 && k == 0 || coef <= 0 && k == 1)
             continue;
+
+          if ((i + j) % 2 == 0)
+            SetDCBrushColor(hDC, RGB(255, 255, 255));
+          else
+            SetDCBrushColor(hDC, RGB(0, 0, 0));
 
           Polygon(hDC, pts, 4);
       }

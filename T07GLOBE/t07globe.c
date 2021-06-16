@@ -69,6 +69,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
+  HFONT hFnt, hFntOld;
   PAINTSTRUCT ps;
   static INT h, w;
   static HDC hMemDC;
@@ -100,7 +101,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
     else if (wParam == 'P')
-      GLB_IsPause = GLB_IsPause;
+      GLB_IsPause = !GLB_IsPause;
     return 0;
 
   case WM_SYSKEYDOWN:
@@ -109,7 +110,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
 
   case WM_CREATE:
-    SetTimer(hWnd, 47, 10, NULL);
+    SetTimer(hWnd, 47, 1, NULL);
     hDC = GetDC(hWnd);
     hMemDC = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
@@ -127,9 +128,23 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SelectObject(hMemDC, GetStockObject(WHITE_BRUSH));
     SelectObject(hMemDC, GetStockObject(BLACK_PEN));
     GlobeDraw(hMemDC);
-    SetBkColor(hMemDC, TRANSPARENT);
-    SetTextColor(hMemDC, RGB(255, 255, 255));
+
+    SetBkMode(hMemDC, TRANSPARENT);
+    SetTextColor(hMemDC, RGB(0, 255, 0));
     TextOut(hMemDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", GLB_FPS));
+
+    if (GLB_IsPause)
+    {
+      RECT rc = {0, 0, w, h};
+
+      hFnt = CreateFont((w < h ? w : h) / 3, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, VARIABLE_PITCH | FF_SWISS, "Consolas");
+      SetTextColor(hMemDC, RGB(255, 0, 0));
+      hFntOld = SelectObject(hMemDC, hFnt);
+      DrawText(hMemDC, "PAUSE", 5, &rc, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
+      SelectObject(hMemDC, hFntOld);
+    }
+    DeleteObject(hFnt);
+    DeleteObject(hFntOld);
 
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
