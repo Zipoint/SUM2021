@@ -8,36 +8,20 @@
 #include <math.h>
 #include <windows.h>
 #include "globe.h"
-#define GRID_H 8
-#define GRID_W 18
+#define GRID_H 15
+#define GRID_W 31
 
-DBL PI = 3.14159265358979323846;
+#define PI 3.14159265358979323846
 
 static VEC Geom[GRID_H][GRID_W];
 static INT WinW, WinH;
 
-VEC RotateZ( VEC V, DBL Angle )
+static DBL Power( DBL X, DBL Y )
 {
-  DBL a = Angle * PI / 180, si = sin(a), co = cos(a);
-  VEC r;
-
-  r.X = V.X * co - V.Y * si;
-  r.Y = V.X * si + V.Y * co;
-  r.Z = V.Z;
-  return r;
+  if (X < 0)
+    return -pow(-X, Y);
+  return pow(X, Y);
 }
-
-VEC RotateY( VEC V, DBL Angle )
-{
-  DBL a = Angle * PI / 180, si = sin(a), co = cos(a);
-  VEC r;
-
-  r.Y = V.Y * co - V.Z * si;
-  r.Z = V.Y * si + V.Z * co;
-  r.X = V.X;
-  return r;
-}
-
 
 VOID GlobeSet( INT W, INT H, DBL R )
 {
@@ -50,9 +34,10 @@ VOID GlobeSet( INT W, INT H, DBL R )
   for (i = 0, theta = 0; i < GRID_H; i++, theta += PI / (GRID_H - 1))
     for (j = 0, phi = 0; j < GRID_W; j++, phi += 2 * PI / (GRID_W - 1))
     {
-      Geom[i][j].X = R * sin(phi) * sin(theta);
-      Geom[i][j].Y = R * cos(theta);
-      Geom[i][j].Z = sin(theta) * cos(phi);
+      DBL a = 0.05, b = 0.05;
+      Geom[i][j].X = R * Power(sin(phi), a) * Power(sin(theta), b) * 0.3;
+      Geom[i][j].Y = R * Power(cos(theta), a) * 0.4;
+      Geom[i][j].Z = Power(sin(theta), a) * Power(cos(phi), b);
     }
 }
 
@@ -60,20 +45,19 @@ VOID GlobeDraw( HDC hDC )
 {
   INT i, j, r, s = 3, k;
   DBL t = GLB_Time;
+  MATR m;
   static POINT pnts[GRID_H][GRID_W];
 
   r = WinW < WinH ? WinW : WinH;
 
+  m = MatrMulMatr(MatrMulMatr(MatrRotateZ(t * 30), MatrRotateY(t * 18)), MatrTranslate(VecSet(0, fabs(0.8  * sin(t * 5)) - 0.47, 0)));
   for (i = 0; i < GRID_H; i++)
     for (j = 0; j < GRID_W; j++)
     {
-      VEC p = Geom[i][j];
+      VEC v = PointTransform(Geom[i][j], m);
 
-      p = RotateZ(p, t * 30);
-      p = RotateY(p, t * 12);
-
-      pnts[i][j].x = WinW / 2 + p.X * 0.47  * r;
-      pnts[i][j].y = WinH / 2 - p.Y * 0.47  * r;
+      pnts[i][j].x = WinW / 2 + v.X * 0.47 * r;
+      pnts[i][j].y = WinH / 2 - v.Y * 0.47 * r;
     }
 
 #if 0

@@ -9,12 +9,13 @@
 
 
 #include <math.h>
+#include <windows.h>
 
-#define PI = 3.14159265358979323846
+#define PI 3.14159265358979323846
 #define D2R(A) ((A) * (PI / 180.0))
 #define Degree2Radian(a) D2R(a)
 
-typedef double DBL
+typedef double DBL;
 typedef struct tagVEC
 {
   DBL X, Y, Z;
@@ -35,25 +36,46 @@ static MATR UnitMatrix =
   }
 };
 
-void main( void )
-{
-}
-
-/* Set vector function.
+/* Set matr function.
  * ARGUMENTS:
  *     vectors to be add:
  *       DBL X, Y, Z;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline VEC VecSet( DBL X, DBL Y, DBL Z)
+__inline MATR MatrSet( DBL A00, DBL A01, DBL A02, DBL A03,
+                       DBL A10, DBL A11, DBL A12, DBL A13,
+                       DBL A20, DBL A21, DBL A22, DBL A23,
+                       DBL A30, DBL A31, DBL A32, DBL A33)
 {
-  VEC v;
+  MATR r =
+  {
+    {
+      {A00, A01, A02, A03},
+      {A10, A11, A12, A13},
+      {A20, A21, A22, A23},
+      {A30, A31, A32, A33},
+    }
+  };
 
-  v.X = X;
-  v.Y = Y;
-  v.Z = Z;
-  return v;
+  return r;
+} /* end of 'MatrSet' function*/
+
+/* Set vector function.
+ * ARGUMENTS:
+ *     vectors to be add:
+ *       DBL A, B, C;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC VecSet( DBL A, DBL B, DBL C )
+{
+  VEC V;
+  V.X = A;
+  V.Y = B;
+  V.Z = C;
+
+  return V;
 } /* end of 'VecSet' function*/
 
 /* MatrIndetity function.
@@ -61,27 +83,11 @@ __inline VEC VecSet( DBL X, DBL Y, DBL Z)
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrIndetity( VOID )
+__inline MATR MatrIdentity( VOID )
 {
-  return UnitMatrix;
+  MATR I = UnitMatrix;
+  return I;
 } /* end of 'MatrIndetity' function*/
-
-/* MatrTranslate function.
- * ARGUMENTS:
- *   - vectors to be add:
- *       VEC T;
- * RETURNS:
- *   (MATR) result matrix.
- */
-__inline MATR MatrTranslate( VEC T )
-{
-  MATR m = UnitMatrix;
-
-  m.A[3][0] = T.X;
-  m.A[3][1] = T.Y;
-  m.A[3][2] = T.Z;
-  return m;
-} /* end of 'MatrTranslate' function*/
 
 /* Add two vectors function.
  * ARGUMENTS:
@@ -175,19 +181,6 @@ __inline DBL VecDotVec( VEC V1, VEC V2 )
   return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z;
 } /* end of 'VecDotVec' function*/
 
-/* VecLen2 function.
- * ARGUMENTS:
- *   - vectors to be add:
- *       VEC V;
- * RETURNS:
- *   (DBL) result double.
- */
-__inline DBL VecLen2( VEC V )
-{
-  VEC t = VecLen(V);
-  return t * t;
-} /* end of 'VecLen2' function*/
-
 /* VacLen function.
  * ARGUMENTS:
  *   - vectors to be add:
@@ -229,29 +222,15 @@ __inline VEC VecNormalize(VEC V)
  */
 __inline VEC VecMulMatr( VEC V, MATR M )
 {
+  DBL w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
+  VEC tmp;
+
+  tmp.X = (M.A[0][0] * V.X + M.A[1][0] * V.Y + M.A[2][0] * V.Z + M.A[3][0]) / w;
+  tmp.Y = (M.A[0][1] * V.X + M.A[1][1] * V.Y + M.A[2][1] * V.Z + M.A[3][1]) / w;
+  tmp.Z = (M.A[0][2] * V.X + M.A[1][2] * V.Y + M.A[2][2] * V.Z + M.A[3][2]) / w;
+
+  return tmp;
 } /* end of 'VecMulMatr' function*/
-
-/* PointTransform function.
- * ARGUMENTS:
- *   - vectors to be add:
- *       VEC V, MATR M;
- * RETURNS:
- *   (VEC) result vector.
- */
-__inline VEC PointTransform( VEC V, MATR M )
-{
-} /* end of 'PointTransform' function*/
-
-/* VectorTransform function.
- * ARGUMENTS:
- *   - vectors to be add:
- *       VEC V, MATR M;
- * RETURNS:
- *   (VEC) result vector.
- */
-__inline VEC VectorTransform( VEC V, MATR M )
-{
-} /* end of 'VectorTransform' function*/
 
 /* MatrRotate function.
  * ARGUMENTS:
@@ -306,9 +285,10 @@ __inline MATR MatrTranslate( VEC T )
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrMulMatr( MATR M1, MATR M2 ) 
+__inline MATR MatrMulMatr( MATR M1, MATR M2 )
 {
   MATR r = {{{0}}};
+  INT i, k, j;
 
   for (i = 0; i < 4; i++)
     for (j = 0; j < 4; j++)
@@ -373,70 +353,70 @@ __inline  MATR MatrInverse( MATR M )
   if (det == 0)
     return MatrIdentity();
 
-  r.M[0][0] =
+  r.A[0][0] =
     +MatrDeterm3x3(M.A[1][1], M.A[1][2], M.A[1][3],
                    M.A[2][1], M.A[2][2], M.A[2][3],
                    M.A[3][1], M.A[3][2], M.A[3][3]) / det;
-  r.M[1][0] =
+  r.A[1][0] =
     -MatrDeterm3x3(M.A[1][0], M.A[1][2], M.A[1][3],
                    M.A[2][0], M.A[2][2], M.A[2][3],
                    M.A[3][0], M.A[3][2], M.A[3][3]) / det;
-  r.M[2][0] =
+  r.A[2][0] =
     +MatrDeterm3x3(M.A[1][0], M.A[1][1], M.A[1][3],
                    M.A[2][0], M.A[2][1], M.A[2][3],
                    M.A[3][0], M.A[3][1], M.A[3][3]) / det;
-  r.M[3][0] =
+  r.A[3][0] =
     -MatrDeterm3x3(M.A[1][0], M.A[1][1], M.A[1][2],
                    M.A[2][0], M.A[2][1], M.A[2][2],
                    M.A[3][0], M.A[3][1], M.A[3][2]) / det;
 
-  r.M[0][1] =
+  r.A[0][1] =
     -MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
                    M.A[2][1], M.A[2][2], M.A[2][3],
                    M.A[3][1], M.A[3][2], M.A[3][3]) / det;
-  r.M[1][1] =
+  r.A[1][1] =
     +MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
                    M.A[2][0], M.A[2][2], M.A[2][3],
                    M.A[3][0], M.A[3][2], M.A[3][3]) / det;
-  r.M[2][1] =
+  r.A[2][1] =
     -MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][3],
                    M.A[2][0], M.A[2][1], M.A[2][3],
                    M.A[3][0], M.A[3][1], M.A[3][3]) / det;
-  r.M[3][1] =
+  r.A[3][1] =
     +MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
                    M.A[2][0], M.A[2][1], M.A[2][2],
                    M.A[3][0], M.A[3][1], M.A[3][2]) / det;
 
-  r.M[0][2] =
+  r.A[0][2] =
     +MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
                    M.A[1][1], M.A[1][2], M.A[1][3],
                    M.A[3][1], M.A[3][2], M.A[3][3]) / det;
-  r.M[1][2] =
+  r.A[1][2] =
     -MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
                    M.A[1][0], M.A[1][2], M.A[1][3],
                    M.A[3][0], M.A[3][2], M.A[3][3]) / det;
-  r.M[2][2] =
+  r.A[2][2] =
     +MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][3],
                    M.A[1][0], M.A[1][1], M.A[1][3],
                    M.A[3][0], M.A[3][1], M.A[3][3]) / det;
-  r.M[3][2] =
+  r.A[3][2] =
     -MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
                    M.A[1][0], M.A[1][1], M.A[1][2],
                    M.A[3][0], M.A[3][1], M.A[3][2]) / det;
 
-  r.M[0][3] =
+  r.A[0][3] =
     -MatrDeterm3x3(M.A[0][1], M.A[0][2], M.A[0][3],
                    M.A[1][1], M.A[1][2], M.A[1][3],
                    M.A[2][1], M.A[2][2], M.A[2][3]) / det;
-  r.M[1][3] =
+  r.A[1][3] =
     +MatrDeterm3x3(M.A[0][0], M.A[0][2], M.A[0][3],
                    M.A[1][0], M.A[1][2], M.A[1][3],
                    M.A[2][0], M.A[2][2], M.A[2][3]) / det;
-  r.M[2][3] =
+  r.A[2][3] =
     -MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][3],
                    M.A[1][0], M.A[1][1], M.A[1][3],
                    M.A[2][0], M.A[2][1], M.A[2][3]) / det;
-  r.M[3][3] =
+  r.A[3][3] =
     +MatrDeterm3x3(M.A[0][0], M.A[0][1], M.A[0][2],
                    M.A[1][0], M.A[1][1], M.A[1][2],
                    M.A[2][0], M.A[2][1], M.A[2][2]) / det;
@@ -453,7 +433,53 @@ __inline  MATR MatrInverse( MATR M )
  */
 __inline MATR MatrTranspose( MATR M )
 {
+  MATR m =
+  {
+    {
+      {M.A[0][0], M.A[1][0], M.A[2][0], M.A[3][0]},
+      {M.A[0][1], M.A[1][1], M.A[2][1], M.A[3][1]},
+      {M.A[0][2], M.A[1][2], M.A[2][2], M.A[3][2]},
+      {M.A[0][3], M.A[1][3], M.A[2][3], M.A[3][3]}
+    }
+  };
+  return m;
 } /* end of 'MatrTranspose' function*/
+
+/* PointTransform function.
+ * ARGUMENTS:
+ *   - vectors to be add:
+ *       VEC V, MATR M;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC PointTransform( VEC V, MATR M )
+{
+  VEC tmp;
+
+  tmp.X = V.X * M.A[0][0] + V.Y * M.A[1][0] + V.Z * M.A[2][0] + M.A[3][0];
+  tmp.Y = V.X * M.A[0][1] + V.Y * M.A[1][1] + V.Z * M.A[2][1] + M.A[3][1];
+  tmp.Z = V.X * M.A[0][2] + V.Y * M.A[1][2] + V.Z * M.A[2][2] + M.A[3][2];
+
+  return tmp;
+} /* end of 'PointTransform' function*/
+
+/* VectorTransform function.
+ * ARGUMENTS:
+ *   - vectors to be add:
+ *       VEC V, MATR M;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC VectorTransform( VEC V, MATR M )
+{
+  VEC tmp;
+
+  tmp.X = V.X * M.A[0][0] + V.Y * M.A[1][0] + V.Z * M.A[2][0];
+  tmp.Y = V.X * M.A[0][1] + V.Y * M.A[1][1] + V.Z * M.A[2][1];
+  tmp.Z = V.X * M.A[0][2] + V.Y * M.A[1][2] + V.Z * M.A[2][2];
+
+  return tmp;
+} /* end of 'VectorTransform' function*/
 
 /* MatrRotateX function.
  * ARGUMENTS:
@@ -464,6 +490,18 @@ __inline MATR MatrTranspose( MATR M )
  */
 __inline MATR MatrRotateX( DBL AngleInDegree )
 {
+  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  MATR m =
+  {
+    {
+      {1, 0, 0, 0},
+      {0, co, si, 0},
+      {0, -si, co, 0},
+      {0, 0, 0, 1}
+    }
+  };
+
+  return m;
 } /* end of 'MatrRotateX' function*/
 
 /* MatrRotateY function.
@@ -475,6 +513,18 @@ __inline MATR MatrRotateX( DBL AngleInDegree )
  */
 __inline MATR MatrRotateY( DBL AngleInDegree )
 {
+  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  MATR m =
+  {
+    {
+      {co, 0, -si, 0},
+      {0, 1, 0, 0},
+      {si, 0, co, 0},
+      {0, 0, 0, 1}
+    }
+  };
+
+  return m;
 } /* end of 'MatrRotateY' function*/
 
 /* MatrRotateZ function.
@@ -486,6 +536,18 @@ __inline MATR MatrRotateY( DBL AngleInDegree )
  */
 __inline MATR MatrRotateZ( DBL AngleInDegree )
 {
+  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  MATR m =
+  {
+    {
+      {co, si, 0, 0},
+      {-si, co, 0, 0},
+      {0, 0, 1, 0},
+      {0, 0, 0, 1}
+    }
+  };
+
+  return m;
 } /* end of 'MatrRotateZ' function*/
 
 /* MatrScale function.
@@ -512,7 +574,46 @@ __inline MATR MatrScale( VEC S )
  */
 __inline VEC VecCrossVec( VEC V1, VEC V2 )
 {
+  VEC tmp;
+  MATR m =
+  {
+    {
+      {0 ,V2.Z, -V2.Y, 0},
+      {-V2.Z,0, V2.X, 0},
+      {V2.Y ,-V2.X, 0, 0},
+      {0 ,0, 0, 0}
+    }
+  };
+  tmp = VecMulMatr(V1, m);
+  return tmp;
 } /* end of 'VecCrossVec' function*/
+
+/* VecLen2 function.
+ * ARGUMENTS:
+ *   - vectors to be add:
+ *       VEC V;
+ * RETURNS:
+ *   (DBL) result double.
+ */
+__inline DBL VecLen2( VEC V )
+{
+  DBL t = VecLen(V);
+  return t * t;
+} /* end of 'VecLen2' function*/
+
+/* VecVec1 function.
+ * ARGUMENTS:
+ *   - vectors to be add:
+ *       DBL A;;
+ * RETURNS:
+ *   (VEC) result vector.
+ */
+__inline VEC VecVec1( DBL A )
+{
+  VEC r = {A, A, A};
+
+  return r;
+}
 
 #endif /* __mth_h_ */
 /* END OF 'mth.h' FILE */
