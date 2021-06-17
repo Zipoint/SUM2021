@@ -1,0 +1,160 @@
+/* FILE NAME   : main.c
+ * PROGRAMMER  : MH5
+ * LAST UPDATE : 17.06.2021
+ * PURPOSE     : 3D animation common declaration module.
+ */
+
+#include "../anim/rnd/rnd.h"
+
+
+/* Window class name */
+#define MH5_WND_CLASS_NAME "My Summer class name"
+
+/* Forward declaration */
+LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
+
+/* The main program function.
+ * ARGUMENTS:
+ *   - handle of application instance:
+ *       HINSTANCE hInstance;
+ *   - dummy handle of previous application instance (not used):
+ *       HINSTANCE hPrevInstance;
+ *   - command line string:
+ *       CHAR *CmdLine;
+ *   - show window command parameter (see SW_***):
+ *       INT CmdShow;
+ * RETURNS:
+ *   (INT) Error level for operation system (0 for success).
+ */
+INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd)
+{
+  WNDCLASS wc;
+  HWND hWnd;
+  MSG msg;
+
+  SetDbgMemHooks();
+
+  /* Fill window class structure */
+  wc.style = CS_VREDRAW | CS_HREDRAW;
+  wc.cbClsExtra = 0;
+  wc.cbWndExtra = 0;
+  wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wc.hIcon = LoadIcon(NULL, IDI_QUESTION);
+  wc.lpszMenuName = NULL;
+  wc.hInstance = hInstance;
+  wc.lpszClassName = MH5_WND_CLASS_NAME;
+  wc.lpfnWndProc = MH5_MyWindowFunc;
+
+
+  /* Register window class */
+  if (!RegisterClass(&wc))
+  {
+    MessageBox(NULL, "Error register window class", "ERROR", MB_OK | MB_ICONERROR);
+    return 0;
+  }
+
+  /* Window creation */
+  hWnd = 
+    CreateWindow(MH5_WND_CLASS_NAME,
+    "T08ANIM",
+    WS_OVERLAPPEDWINDOW,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    CW_USEDEFAULT, CW_USEDEFAULT,
+    NULL,
+    NULL,
+    hInstance,
+    NULL);
+
+
+  ShowWindow(hWnd, SW_SHOWNORMAL);
+  UpdateWindow(hWnd);
+
+  /* Message loop */
+  while (TRUE)
+    if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      if (msg.message == WM_QUIT)
+        break;
+      DispatchMessage(&msg);
+    }
+    else
+      SendMessage(hWnd, WM_TIMER, 30, 0);
+
+  return 30;
+} /* end of 'WinMain' function*/
+
+
+/* Window handle function.
+ * ARGUMENTS:
+ *   - window handle:
+ *      HWND hWnd;
+ *   - message type (see WM_***):
+ *      UINT Msg;
+ *   - message 'word' parameter:
+ *      WPARAM wParam;
+ *   - message 'long' parameter:
+ *      LPARAM lParam;
+ * RETURNS:
+ *   (LRESULT) message depende return value.
+ */
+LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
+{
+  HDC hDC;
+  PAINTSTRUCT ps;
+
+  switch (Msg)
+  {
+  case WM_GETMINMAXINFO:
+    ((MINMAXINFO *)lParam)->ptMaxTrackSize.y =
+      GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER);
+    return 0;
+
+  case WM_SIZE:
+    MH5_RndResize(LOWORD(lParam), HIWORD(lParam));
+    SendMessage(hWnd, WM_TIMER, 0, 0);
+    return 0;
+
+  case WM_KEYDOWN:
+    if (wParam == VK_ESCAPE)
+      SendMessage(hWnd, WM_CLOSE, 0, 0);
+
+  case WM_SYSKEYDOWN:
+    if (wParam == VK_RETURN)
+      /*FlipFullScreen(hWnd); */
+    return 0;
+
+  case WM_CREATE:
+    MH5_RndInit(hWnd);
+    SetTimer(hWnd, 47, 1, NULL);
+    return 0;
+
+  case WM_TIMER:
+    MH5_RndStart();
+    SelectObject(MH5_hDCRndFrame, GetStockObject(DC_PEN));
+    SetDCPenColor(MH5_hDCRndFrame, RGB(255, 255, 255));
+    Ellipse(MH5_hDCRndFrame, 4, 4, 100 ,100);
+    MH5_RndEnd();
+    InvalidateRect(hWnd, NULL, FALSE);
+    return 0;
+
+  case WM_PAINT:
+    hDC = BeginPaint(hWnd, &ps);
+    MH5_RndCopyFrame(hDC);
+    EndPaint(hWnd, &ps);
+    return 0;
+
+  case WM_DESTROY:
+    MH5_RndClose();
+    KillTimer(hWnd, 47);
+    PostQuitMessage(0);
+    return 0;
+
+  case WM_ERASEBKGND:
+    return 1;
+  }
+
+  return DefWindowProc(hWnd, Msg, wParam, lParam);
+} /* end of 'MH5_MyWindowFunc' function*/
+
+/* END OF 'main.c' FILE */
