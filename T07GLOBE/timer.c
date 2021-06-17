@@ -36,3 +36,5 @@ VOID GLB_TimerResponse( VOID )
   }
   OldTime = t;
 }
+
+/* END OF 'timer.c' FILE */

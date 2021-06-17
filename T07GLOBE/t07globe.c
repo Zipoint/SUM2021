@@ -6,11 +6,7 @@
 
 #pragma warning(disable: 4244)
 
-#include <stdio.h>
-#include <math.h>
 #include "globe.h"
-
-#include <windows.h>
 
 #define WND_CLASS_NAME "My Summer class name"
 
@@ -69,11 +65,13 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
-  HFONT hFnt, hFntOld;
+  static HFONT hFnt, hFntOld;
+  BITMAP bmLogo;
   PAINTSTRUCT ps;
+  INT size;
   static INT h, w;
-  static HDC hMemDC;
-  static HBITMAP hBm;
+  static HDC hMemDC, hMemDCLogo;
+  static HBITMAP hBm, hBmLogoXor, hBmLogoAND;
   static CHAR Buf[100];
 
   switch (Msg)
@@ -86,6 +84,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     if (hBm != NULL)
       DeleteObject(hBm);
     hBm = CreateCompatibleBitmap(hDC, w, h);
+    hBmLogoXor = LoadImage(NULL, "XOR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    hBmLogoAND = LoadImage(NULL, "OR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     ReleaseDC(hWnd, hDC);
     SelectObject(hMemDC, hBm);
     GlobeSet(w, h, 1);
@@ -113,6 +113,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SetTimer(hWnd, 47, 1, NULL);
     hDC = GetDC(hWnd);
     hMemDC = CreateCompatibleDC(hDC);
+    hMemDCLogo = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
     hBm = NULL;
 
@@ -121,6 +122,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
   case WM_TIMER:
     GLB_TimerResponse();
+    GetObject(hBmLogoAND, sizeof(bmLogo), &bmLogo);
     SelectObject(hMemDC, GetStockObject(GRAY_BRUSH));
     SelectObject(hMemDC, GetStockObject(NULL_PEN));
     Rectangle(hMemDC, 0, 0, w + 1, h + 1);
@@ -132,19 +134,22 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SetBkMode(hMemDC, TRANSPARENT);
     SetTextColor(hMemDC, RGB(0, 255, 0));
     TextOut(hMemDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", GLB_FPS));
+    size = w < h ? w : h;
 
     if (GLB_IsPause)
     {
       RECT rc = {0, 0, w, h};
 
-      hFnt = CreateFont((w < h ? w : h) / 3, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, VARIABLE_PITCH | FF_SWISS, "Consolas");
+      /*hFnt = CreateFont((w < h ? w : h) / 3, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, VARIABLE_PITCH | FF_SWISS, "Consolas");
       SetTextColor(hMemDC, RGB(255, 0, 0));
       hFntOld = SelectObject(hMemDC, hFnt);
       DrawText(hMemDC, "PAUSE", 5, &rc, DT_CENTER | DT_SINGLELINE | DT_VCENTER);
-      SelectObject(hMemDC, hFntOld);
+      SelectObject(hMemDC, hFntOld);*/
+      SelectObject(hMemDCLogo, hBmLogoAND);
+      StretchBlt(hMemDC, (w - size) / 2, (h - size) / 2, size, size, hMemDCLogo, 0, 0, bmLogo.bmWidth, bmLogo.bmHeight, SRCAND);
+      SelectObject(hMemDCLogo, hBmLogoXor);
+      StretchBlt(hMemDC, (w - size) / 2, (h - size) / 2, size, size, hMemDCLogo, 0, 0, bmLogo.bmWidth, bmLogo.bmHeight, SRCINVERT);
     }
-    DeleteObject(hFnt);
-    DeleteObject(hFntOld);
 
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
@@ -162,6 +167,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     KillTimer(hWnd, 47);
     if (hBm != NULL)
       DeleteObject(hBm);
+    if (hBmLogoAND != NULL)
+      DeleteObject(hBmLogoAND);
+    if (hBmLogoXor != NULL)
+      DeleteObject(hBmLogoXor);
+    DeleteObject(hFnt);
+    DeleteObject(hFntOld);
     DeleteDC(hMemDC);
     PostQuitMessage(0);
     return 0;
@@ -214,3 +225,5 @@ VOID FlipFullScreen( HWND hWnd )
       SWP_NOOWNERZORDER);
   }
 } /* End of 'FlipFullScreen' function */
+
+/* END OF 't07globe.c' FILE */

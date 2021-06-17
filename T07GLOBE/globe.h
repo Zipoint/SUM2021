@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <windows.h>
+#include <math.h>
 #include "timer.h"
 #pragma warning(disable: 4244)
 #pragma warning(disable: 4013)
@@ -28,3 +29,5 @@ VEC RotateZ( VEC V, DBL Angle );
 VEC RotateY( VEC V, DBL Angle );
 
 #endif __globe_h_
+
+/* END OF 'globe.h' FILE */

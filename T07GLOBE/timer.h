@@ -17,3 +17,5 @@ LONG OldTime;
 LONG PauseTime;
 LONG OldFPSTime;
 LONG FrameCount;
+
+/* END OF 'timer.h' FILE */

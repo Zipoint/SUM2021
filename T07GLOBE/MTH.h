@@ -645,5 +645,50 @@ __inline MATR MatrMulMatr4( MATR m1, MATR m2, MATR m3, MATR m4 )
 }
 
 
+/* Matrix look-at viewer setup function(vector).
+ * ARGUMENTS:
+ *   - viewer position, look-at point, approximate up direction:
+ *       DBL l, r, b, t, n, f;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
+{
+  MATR m =
+  {
+    {
+      {(2 * n)/(r - l), 0, 0, 0},
+      {0, (2 * n)/(t - b), 0, 0},
+      {(r + l)/(r - l), (t + b)/(t - b), -(f + n)/(f - n), -1},
+      {0, 0, -(2 * n * f)/(f - n), 0}
+    }
+  };
+
+  return m;
+} /* End of 'MatrFrustum' function */
+
+
+/* Matrix look-at viewer setup function(ortho).
+ * ARGUMENTS:
+ *   - viewer position, look-at point, approximate up direction:
+ *       DBL Left, Right, Bottom, Top, Near, Far;
+ * RETURNS:
+ *   (MATR) result matrix.
+ */
+__inline MATR MatrOrtho( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+{
+  MATR m =
+  {
+    {
+      {2 / (Right - Left), 0, 0, 0},
+      {0, 2 / (Top - Bottom), 0, 0},
+      {0, 0, -2 / (Far - Near), 0},
+      {-(Right + Left)/(Right - Left), -(Top + Bottom)/(Top - Bottom), -(Far + Near)/(Far - Near), 0}
+    }
+  };
+
+  return m;
+} /* End of 'MatrOrtho' function */
 #endif /* __mth_h_ */
+
 /* END OF 'mth.h' FILE */

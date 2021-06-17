@@ -35,8 +35,8 @@ VOID GlobeSet( INT W, INT H, DBL R )
     for (j = 0, phi = 0; j < GRID_W; j++, phi += 2 * PI / (GRID_W - 1))
     {
       DBL a = 0.25, b = 0.25;
-      Geom[i][j].X = R * Power(sin(phi), a) * Power(sin(theta), b) * 0.3;
-      Geom[i][j].Y = R * Power(cos(theta), a) * 0.4;
+      Geom[i][j].X = R * Power(sin(phi), a) * Power(sin(theta), b);
+      Geom[i][j].Y = R * Power(cos(theta), a) * 2;
       Geom[i][j].Z = Power(sin(theta), a) * Power(cos(phi), b);
     }
 }
@@ -49,28 +49,29 @@ VOID GlobeDraw( HDC hDC )
   DBL Hp, Wp, size = 2, ProjDist;
   static POINT pnts[GRID_H][GRID_W];
 
-  r = WinW < WinH ? WinW : WinH;
-
-  m = MatrMulMatr3(MatrRotateZ(t * 30), MatrRotateY(t * 18), MatrTranslate(VecSet(0, 0 * fabs(0.8 * sin(t * 5)) - 0.47, 0)));
-  m = MatrMulMatr(m, MatrView(VecSet(0, 0, 3), VecSet(0, 0, 0), VecSet(0, 1, 0)));
-
-  Wp = Hp = size;
+    Wp = Hp = size;
   if (WinW > WinH)
     Wp *= (DBL)WinW / WinH;
   else
     Hp *= (DBL)WinH / WinW;
   ProjDist = size;
 
+  r = WinW < WinH ? WinW : WinH;
+
+  m = MatrMulMatr3(MatrRotateZ(t * 30), MatrRotateY(t * 18), MatrTranslate(VecSet(0, fabs(0.8 * sin(t * 5)), 0)));
+  m = MatrMulMatr(m, MatrView(VecSet(3 + fabs(sin(GLB_Time)) * 10, 0, sin(GLB_Time) * 5), VecSet(0, 0, 0), VecSet(0, 1, 0)));
+  m = MatrMulMatr(m, MatrFrustum(-Wp / 2, Wp / 2, -Hp / 2, Hp / 2, ProjDist, 300));
+
   for (i = 0; i < GRID_H; i++)
     for (j = 0; j < GRID_W; j++)
     {
-      VEC v = PointTransform(Geom[i][j], m);
+      VEC v = VecMulMatr(Geom[i][j], m); //(Geom[i][j], m);
 
-      v.X = v.X * ProjDist / -v.Z;
-      v.Y = v.Y * ProjDist / -v.Z;
+      //v.X = v.X * ProjDist / -v.Z;
+      //v.Y = v.Y * ProjDist / -v.Z;
 
-      pnts[i][j].x = v.X * WinW / Wp + WinW / 2;
-      pnts[i][j].y = -v.Y * WinH / Hp + WinH / 2;
+      pnts[i][j].x = (v.X + 1) * WinW / 2; //v.X * WinW / Wp + WinW / 2;
+      pnts[i][j].y = (-v.Y + 1) * WinH / 2; //-v.Y * WinH / Hp + WinH / 2;
     }
 
 #if 0
@@ -92,6 +93,7 @@ VOID GlobeDraw( HDC hDC )
         LineTo(hDC, pnts[i][j].x, pnts[i][j].y);
     }
 #endif /* 0 */
+
     for (k = 0; k < 1; k++)
     {
       /* if (k == 0)
@@ -127,7 +129,7 @@ VOID GlobeDraw( HDC hDC )
                  (pts[1].x - pts[2].x) * (pts[1].y + pts[2].y) +
                  (pts[2].x - pts[3].x) * (pts[2].y + pts[3].y) +
                  (pts[3].x - pts[0].x) * (pts[3].y + pts[0].y);
-          if (coef >= 0 && k == 0 || coef <= 0 && k == 1)
+          if (coef <= 0 && k == 0 || coef >= 0 && k == 1)
             continue;
 
           if ((i + j) % 2 == 0)
@@ -139,3 +141,5 @@ VOID GlobeDraw( HDC hDC )
       }
     }
 }
+
+/* END OF 'globe.c' FILE */
