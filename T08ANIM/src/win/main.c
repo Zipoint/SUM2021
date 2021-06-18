@@ -5,6 +5,7 @@
  */
 
 #include "../anim/rnd/rnd.h"
+#include <time.h>
 
 
 /* Window class name */
@@ -102,6 +103,8 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 {
   HDC hDC;
   PAINTSTRUCT ps;
+  DBL t = clock() / 1000.0;
+  static mh5PRIM PrT, PrS, PrL, PrF, PrH, PrH2;
 
   switch (Msg)
   {
@@ -125,15 +128,28 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
     return 0;
 
   case WM_CREATE:
-    MH5_RndInit(hWnd);
     SetTimer(hWnd, 47, 1, NULL);
+    MH5_RndInit(hWnd);
+    MH5_RndPrimCreateTor(&PrT, VecSet(0, 0, 0), 8, 3, 40, 40);
+    MH5_RndPrimCreateSphere(&PrS, VecSet(0, 0, 0), 2, 10, 10);
+    MH5_RndPrimLoad(&PrL, "pig.obj");
+    MH5_RndPrimLoad(&PrH, "girl.obj");
+    MH5_RndPrimLoad(&PrH2, "cow.obj");
+    MH5_RndPrimCreatePlosk(&PrF, VecSet(-8, 0 ,8), VecSet(18, 0 ,0), VecSet(0, 0, -18), 8, 8);
     return 0;
 
   case WM_TIMER:
     MH5_RndStart();
     SelectObject(MH5_hDCRndFrame, GetStockObject(DC_PEN));
     SetDCPenColor(MH5_hDCRndFrame, RGB(255, 255, 255));
-    Ellipse(MH5_hDCRndFrame, 4, 4, 100 ,100);
+    MH5_RndCamSet(PointTransform(VecSet(8, 15 + 0 * 5 * sin(t), 5), MatrRotateY(-t * 27)), VecSet(0 ,0 ,0), VecSet(0 ,1 ,0));
+
+    //MH5_RndPrimDraw(&PrT, MatrMulMatr(MatrRotateY(30 * clock() / 1000.0), MatrTranslate(VecSet(0, 2 * fabs(0.8 * sin(clock() / 1000.0 * 5)), 0))));
+    MH5_RndPrimDraw(&PrS, MatrMulMatr(MatrRotateY(30 * clock() / 1000.0), MatrTranslate(VecSet(5, 2 * fabs(0.8 * sin(clock() / 1000.0 * 5)), 3))));
+    MH5_RndPrimDraw(&PrF, MatrIdentity());
+    MH5_RndPrimDraw(&PrL, MatrMulMatr3(MatrScale(VecVec1(0.1)), MatrRotateY(sin(3 * clock() / 1000.0) * 8), MatrTranslate(VecSet(sin(3 * clock() / 1000.0) * 8, 0, -7))));
+    MH5_RndPrimDraw(&PrH, MatrMulMatr3(MatrScale(VecVec1(0.03)), MatrTranslate(VecSet(0, 0, 0)), MatrRotateX(0)));
+    MH5_RndPrimDraw(&PrH2, MatrMulMatr3(MatrScale(VecVec1(0.5)), MatrTranslate(VecSet(-3, 0, 5)), MatrRotateX(0)));
     MH5_RndEnd();
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
@@ -146,6 +162,10 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 
   case WM_DESTROY:
     MH5_RndClose();
+    MH5_RndPrimFree(&PrT);
+    MH5_RndPrimFree(&PrS);
+    MH5_RndPrimFree(&PrF);
+    MH5_RndPrimFree(&PrL);
     KillTimer(hWnd, 47);
     PostQuitMessage(0);
     return 0;

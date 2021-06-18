@@ -633,17 +633,6 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
   return m;
 } /* End of 'MatrView' function */
 
-__inline MATR MatrMulMatr3( MATR m1, MATR m2, MATR m3 )
-{
-  return MatrMulMatr(MatrMulMatr(m1, m2), m3);
-}
-
-__inline MATR MatrMulMatr4( MATR m1, MATR m2, MATR m3, MATR m4 )
-{
-  return MatrMulMatr3(MatrMulMatr(m1, m2), m3, m4);
-}
-
-
 /* Matrix look-at viewer setup function(vector).
  * ARGUMENTS:
  *   - viewer position, look-at point, approximate up direction:
@@ -688,6 +677,21 @@ __inline MATR MatrOrtho( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL
 
   return m;
 } /* End of 'MatrOrtho' function */
+
+__inline VEC VecAddVec3( VEC A, VEC B, VEC C )
+{
+  return VecAddVec(VecAddVec(A, B), C);
+}
+
+__inline MATR MatrMulMatr3( MATR A, MATR B, MATR C)
+{
+  return MatrMulMatr(MatrMulMatr(A, B), C);
+}
+
+__inline MATR MatrMulMatr4( MATR A, MATR B, MATR C, MATR D )
+{
+  return MatrMulMatr(MatrMulMatr3(A, B, C), D);
+}
 #endif /* __mth_h_ */
 
 /* END OF 'mth.h' FILE */

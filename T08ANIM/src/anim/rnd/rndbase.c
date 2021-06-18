@@ -5,10 +5,14 @@
  */
 
 #include "rnd.h"
+#include <time.h>
 
 VOID MH5_RndInit( HWND hWnd )
 {
   HDC hDC;
+
+  MH5_hWndRnd = hWnd;
+  MH5_hBmRndFrame = NULL;
   hDC = GetDC(hWnd);
   MH5_hDCRndFrame = CreateCompatibleDC(hDC);
   ReleaseDC(hWnd, hDC);
