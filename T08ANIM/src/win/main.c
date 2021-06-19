@@ -5,11 +5,12 @@
  */
 
 #include "../anim/rnd/rnd.h"
-#include <time.h>
+#include "../units/units.h"
 
 
 /* Window class name */
 #define MH5_WND_CLASS_NAME "My Summer class name"
+INT MH5_MouseWheel;
 
 /* Forward declaration */
 LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
@@ -71,6 +72,11 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
 
+  MH5_AnimAddUnit(MH5_UnitCreateBall());
+  MH5_AnimAddUnit(MH5_UnitCreatePlosk());
+  MH5_AnimAddUnit(MH5_UnitCreatePig());
+  MH5_AnimAddUnit(MH5_UnitCreateCtrl());
+
   /* Message loop */
   while (TRUE)
     if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -103,8 +109,6 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
 {
   HDC hDC;
   PAINTSTRUCT ps;
-  DBL t = clock() / 1000.0;
-  static mh5PRIM PrT, PrS, PrL, PrF, PrH, PrH2;
 
   switch (Msg)
   {
@@ -113,65 +117,60 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
       GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + 2 * GetSystemMetrics(SM_CYBORDER);
     return 0;
 
+  case WM_CREATE:
+    SetTimer(hWnd, 47, 1, NULL);
+    MH5_AnimInit(hWnd);
+    return 0;
+
   case WM_SIZE:
-    MH5_RndResize(LOWORD(lParam), HIWORD(lParam));
+    MH5_AnimResize(LOWORD(lParam), HIWORD(lParam));
     SendMessage(hWnd, WM_TIMER, 0, 0);
     return 0;
 
-  case WM_KEYDOWN:
-    if (wParam == VK_ESCAPE)
-      SendMessage(hWnd, WM_CLOSE, 0, 0);
-
-  case WM_SYSKEYDOWN:
-    if (wParam == VK_RETURN)
-      /*FlipFullScreen(hWnd); */
-    return 0;
-
-  case WM_CREATE:
-    SetTimer(hWnd, 47, 1, NULL);
-    MH5_RndInit(hWnd);
-    MH5_RndPrimCreateTor(&PrT, VecSet(0, 0, 0), 8, 3, 40, 40);
-    MH5_RndPrimCreateSphere(&PrS, VecSet(0, 0, 0), 2, 10, 10);
-    MH5_RndPrimLoad(&PrL, "pig.obj");
-    MH5_RndPrimLoad(&PrH, "girl.obj");
-    MH5_RndPrimLoad(&PrH2, "cow.obj");
-    MH5_RndPrimCreatePlosk(&PrF, VecSet(-8, 0 ,8), VecSet(18, 0 ,0), VecSet(0, 0, -18), 8, 8);
-    return 0;
-
   case WM_TIMER:
-    MH5_RndStart();
-    SelectObject(MH5_hDCRndFrame, GetStockObject(DC_PEN));
-    SetDCPenColor(MH5_hDCRndFrame, RGB(255, 255, 255));
-    MH5_RndCamSet(PointTransform(VecSet(8, 15 + 0 * 5 * sin(t), 5), MatrRotateY(-t * 27)), VecSet(0 ,0 ,0), VecSet(0 ,1 ,0));
-
-    //MH5_RndPrimDraw(&PrT, MatrMulMatr(MatrRotateY(30 * clock() / 1000.0), MatrTranslate(VecSet(0, 2 * fabs(0.8 * sin(clock() / 1000.0 * 5)), 0))));
-    MH5_RndPrimDraw(&PrS, MatrMulMatr(MatrRotateY(30 * clock() / 1000.0), MatrTranslate(VecSet(5, 2 * fabs(0.8 * sin(clock() / 1000.0 * 5)), 3))));
-    MH5_RndPrimDraw(&PrF, MatrIdentity());
-    MH5_RndPrimDraw(&PrL, MatrMulMatr3(MatrScale(VecVec1(0.1)), MatrRotateY(sin(3 * clock() / 1000.0) * 8), MatrTranslate(VecSet(sin(3 * clock() / 1000.0) * 8, 0, -7))));
-    MH5_RndPrimDraw(&PrH, MatrMulMatr3(MatrScale(VecVec1(0.03)), MatrTranslate(VecSet(0, 0, 0)), MatrRotateX(0)));
-    MH5_RndPrimDraw(&PrH2, MatrMulMatr3(MatrScale(VecVec1(0.5)), MatrTranslate(VecSet(-3, 0, 5)), MatrRotateX(0)));
-    MH5_RndEnd();
+    MH5_AnimRender();
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
 
+  case WM_ERASEBKGND:
+    return 1;
+
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    MH5_RndCopyFrame(hDC);
+    MH5_AnimCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
 
   case WM_DESTROY:
     MH5_RndClose();
-    MH5_RndPrimFree(&PrT);
-    MH5_RndPrimFree(&PrS);
-    MH5_RndPrimFree(&PrF);
-    MH5_RndPrimFree(&PrL);
+    MH5_AnimClose();
     KillTimer(hWnd, 47);
     PostQuitMessage(0);
     return 0;
 
-  case WM_ERASEBKGND:
-    return 1;
+  case WM_KEYDOWN:
+    if (wParam == VK_ESCAPE)
+      SendMessage(hWnd, WM_CLOSE, 0, 0);
+    else if (wParam == 'P')
+      MH5_Anim.IsPause = !MH5_Anim.IsPause;
+    return 0;
+
+  case WM_SYSKEYDOWN:
+    if (wParam == VK_RETURN)
+      MH5_AnimFlipFullScreen();
+    return 0;
+
+  case WM_MOUSEWHEEL:
+    MH5_MouseWheel += (SHORT)HIWORD(wParam);
+    return 0;
+
+  case WM_LBUTTONDOWN:
+    SetCapture(hWnd);
+    return 0;
+
+  case WM_LBUTTONUP:
+    ReleaseCapture();
+    return 0;
   }
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);

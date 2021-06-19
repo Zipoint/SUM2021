@@ -9,6 +9,8 @@
 
 #include <math.h>
 #include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm")
 
 #define PI 3.14159265358979323846
 #define D2R(A) ((A) * (PI / 180.0))

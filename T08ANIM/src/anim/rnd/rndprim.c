@@ -98,7 +98,7 @@ BOOL MH5_RndPrimCreateTor( mh5PRIM *Pr, VEC C, DBL R, DBL r, INT SplitW, INT Spl
     return TRUE;
 }
 
-BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, VEC D, VEC L, INT SplitW, INT SplitH )
+BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH )
 {
   INT i, j;
 
@@ -107,7 +107,9 @@ BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, VEC D, VEC L, INT SplitW, INT S
 
   for (i = 0; i < SplitH; i++)
     for (j = 0; j < SplitW; j++)
-      Pr->V[i * SplitW + j].P = VecAddVec3(C, VecMulNum(D, j / (SplitW - 1)), VecMulNum(L, i / (SplitH - 1)));
+      Pr->V[i * SplitW + j].P = VecSet(C.X + i * D * (SplitH - 1) + j * D,
+                                       C.Y,
+                                       C.Z + j * D * (SplitW - 1) + i * D);
 
   return TRUE;
 }

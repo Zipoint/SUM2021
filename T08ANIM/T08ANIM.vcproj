@@ -193,6 +193,22 @@
 			<Filter
 				Name="Animation System"
 				>
+				<File
+					RelativePath=".\src\anim\anim.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\anim\anim.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\anim\input.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\anim\timer.c"
+					>
+				</File>
 				<Filter
 					Name="RenderingSystem"
 					>
@@ -219,6 +235,34 @@
 				>
 				<File
 					RelativePath=".\src\win\main.c"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Units"
+				>
+				<File
+					RelativePath=".\src\units\u_bball.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_ctrl.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_pig.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_plosk.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\units.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\units.h"
 					>
 				</File>
 			</Filter>

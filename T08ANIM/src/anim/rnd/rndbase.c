@@ -16,6 +16,7 @@ VOID MH5_RndInit( HWND hWnd )
   hDC = GetDC(hWnd);
   MH5_hDCRndFrame = CreateCompatibleDC(hDC);
   ReleaseDC(hWnd, hDC);
+  MH5_RndCamSet(VecSet(0 ,10 ,10), VecSet(0 ,0, 0), VecSet(0, 1, 0));
 }
 
 VOID MH5_RndClose( VOID )
@@ -61,6 +62,8 @@ VOID MH5_RndStart( VOID )
   SelectObject(MH5_hDCRndFrame, GetStockObject(GRAY_BRUSH));
   SelectObject(MH5_hDCRndFrame, GetStockObject(NULL_PEN));
   Rectangle(MH5_hDCRndFrame, 0, 0, MH5_RndFrameW + 1, MH5_RndFrameH + 1);
+  SelectObject(MH5_hDCRndFrame, GetStockObject(DC_PEN));
+  SetDCPenColor(MH5_hDCRndFrame, RGB(255, 255, 255));
 }
 
 VOID MH5_RndEnd( VOID )

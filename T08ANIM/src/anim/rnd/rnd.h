@@ -52,7 +52,7 @@ BOOL MH5_RndPrimCreateSphere( mh5PRIM *Pr,VEC C, DBL R, INT SplitW, INT SplitH )
 VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World );
 BOOL MH5_RndPrimCreateGrid( mh5PRIM *Pr, INT SplitW, INT SplitH );
 BOOL MH5_RndPrimCreateTor( mh5PRIM *Pr, VEC C, DBL R, DBL r, INT SplitW, INT SplitH );
-BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, VEC D, VEC L, INT SplitW, INT SplitH );
+BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH );
 BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName );
 
 #endif /* __rnd_h_ */
