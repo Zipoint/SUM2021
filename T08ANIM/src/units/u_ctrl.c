@@ -11,7 +11,7 @@ typedef struct
   UNIT_BASE_FIELDS;
   VEC Pos;
   DBL AngleSpeed, Speed;
-  VEC CamLoc, CamDir;
+  VEC CamLoc, CamDir, CamRight;
 } mh5UNIT_CTRL;
 
 /* Unit initialization function.
@@ -24,9 +24,11 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  Uni->CamLoc = VecSet(0, 10, 10);
-  Uni->CamDir = VecSet(0, 0, 0);
+  Uni->CamLoc = VecSet(0, 16, 16);
+  Uni->AngleSpeed = 8;
+  Uni->Speed = 3;
 } /* End of 'MH5_UnitInit' function */
+
 
 /* Unit inter frame events handle function.
  * ARGUMENTS:
@@ -38,15 +40,28 @@ static VOID MH5_UnitInit( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  Uni->AngleSpeed = 8;
-  Uni->Speed = 3;
+  Uni->CamDir = VecSet(-MH5_RndMatrView.A[0][2], -MH5_RndMatrView.A[1][2], -MH5_RndMatrView.A[2][2]);
+  Uni->CamRight = VecSet(MH5_RndMatrView.A[0][0], MH5_RndMatrView.A[1][0], MH5_RndMatrView.A[2][0]);
   Uni->CamLoc =
     PointTransform(Uni->CamLoc,
-      MatrRotateY(Ani->Keys[VK_LBUTTON] *
+      MatrRotateY(-Ani->Keys[VK_LBUTTON] *
         Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->Mdx));
   Uni->CamLoc =
     VecAddVec(Uni->CamLoc,
       VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * Ani->Mdz));
+  Uni->CamLoc =
+     PointTransform(Uni->CamLoc,
+       MatrRotate(-Ani->Keys[VK_LBUTTON] *
+       Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->Mdy, Uni->CamRight));
+  Uni->CamLoc =
+    PointTransform(Uni->CamLoc,
+      MatrRotateY(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JY * 30));
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+      VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * Ani->JZ * 30));
+  Uni->CamLoc =
+     PointTransform(Uni->CamLoc,
+       MatrRotate(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JY * 30, Uni->CamRight));
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.

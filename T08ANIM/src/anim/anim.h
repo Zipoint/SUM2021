@@ -4,10 +4,11 @@
  * PURPOSE     : 3D animation common declaration module.
  */
 
-#include "rnd/rnd.h"
 #ifndef __anim_h_
 #define __anim_h_
 
+#include <stdio.h>
+#include "rnd/rnd.h"
 #define MH5_MAX_UNITS 3000
 #define UNIT_BASE_FIELDS \
   VOID (*Init)( mh5UNIT *Uni, mh5ANIM *Ani );      \

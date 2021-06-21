@@ -627,7 +627,9 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
   MATR m =
   {
     {
-      {Right.X, Up.X, -Dir.X, 0}, {Right.Y, Up.Y, -Dir.Y, 0}, {Right.Z, Up.Z, -Dir.Z, 0},
+      {Right.X, Up.X, -Dir.X, 0},
+      {Right.Y, Up.Y, -Dir.Y, 0},
+      {Right.Z, Up.Z, -Dir.Z, 0},
       {-VecDotVec(Loc, Right), -VecDotVec(Loc, Up), VecDotVec(Loc, Dir), 1}
     }
   };

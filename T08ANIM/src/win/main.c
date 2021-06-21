@@ -11,6 +11,7 @@
 /* Window class name */
 #define MH5_WND_CLASS_NAME "My Summer class name"
 INT MH5_MouseWheel;
+extern MH5_MouseWheel;
 
 /* Forward declaration */
 LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );

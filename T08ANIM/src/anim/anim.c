@@ -55,6 +55,7 @@ VOID MH5_AnimCopyFrame( HDC hDC )
 VOID MH5_AnimRender( VOID )
 {
   INT i;
+  static CHAR Buf[100];
 
   MH5_TimerResponse();
   MH5_AnimInputResponse();
@@ -65,6 +66,10 @@ VOID MH5_AnimRender( VOID )
   MH5_RndStart();
   for (i = 0; i < MH5_Anim.NumOfUnits; i++)
     MH5_Anim.Units[i]->Render(MH5_Anim.Units[i], &MH5_Anim);
+
+  SetBkMode(MH5_Anim.hDC, TRANSPARENT);
+  SetTextColor(MH5_Anim.hDC, RGB(0, 255, 0));
+  TextOut(MH5_Anim.hDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", MH5_Anim.FPS));
   MH5_RndEnd();
 }
 
