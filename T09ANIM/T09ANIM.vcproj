@@ -213,6 +213,10 @@
 					Name="RenderingSystem"
 					>
 					<File
+						RelativePath=".\src\anim\rnd\glew.c"
+						>
+					</File>
+					<File
 						RelativePath=".\src\anim\rnd\rnd.h"
 						>
 					</File>

@@ -7,7 +7,6 @@
 #ifndef __anim_h_
 #define __anim_h_
 
-#include <stdio.h>
 #include "rnd/rnd.h"
 #define MH5_MAX_UNITS 3000
 #define UNIT_BASE_FIELDS \
@@ -52,7 +51,7 @@ extern mh5ANIM MH5_Anim;
 VOID MH5_AnimInit( HWND hWnd );
 VOID MH5_AnimClose( VOID );
 VOID MH5_AnimResize( INT W, INT H );
-VOID MH5_AnimCopyFrame( HDC hDC );
+VOID MH5_AnimCopyFrame( VOID );
 VOID MH5_AnimRender( VOID );
 VOID MH5_AnimAddUnit( mh5UNIT *Uni );
 VOID MH5_AnimFlipFullScreen( VOID );

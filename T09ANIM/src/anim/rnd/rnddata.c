@@ -6,10 +6,10 @@
 
 #include "rnd.h"
 
-HWND MH5_hWndRnd;
-HDC MH5_hDCRndFrame;
-HBITMAP MH5_hBmRndFrame;
+HWND MH5_hRndWnd;
+HDC MH5_hRndDC;
 INT MH5_RndFrameW, MH5_RndFrameH;
+HGLRC MH5_hRndGLRC;
 
 DBL
   MH5_RndProjSize = 0.1,

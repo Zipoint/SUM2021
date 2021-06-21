@@ -20,7 +20,6 @@ VOID MH5_AnimInit( HWND hWnd )
 
   MH5_Anim.hWnd = hWnd;
   MH5_RndInit(hWnd);
-  MH5_Anim.hDC = MH5_hDCRndFrame;
 }
 
 
@@ -47,9 +46,9 @@ VOID MH5_AnimResize( INT W, INT H )
   MH5_RndResize(W, H);
 }
 
-VOID MH5_AnimCopyFrame( HDC hDC )
+VOID MH5_AnimCopyFrame( VOID )
 {
-  MH5_RndCopyFrame(hDC);
+  MH5_RndCopyFrame();
 }
 
 VOID MH5_AnimRender( VOID )
@@ -67,9 +66,10 @@ VOID MH5_AnimRender( VOID )
   for (i = 0; i < MH5_Anim.NumOfUnits; i++)
     MH5_Anim.Units[i]->Render(MH5_Anim.Units[i], &MH5_Anim);
 
-  SetBkMode(MH5_Anim.hDC, TRANSPARENT);
-  SetTextColor(MH5_Anim.hDC, RGB(0, 255, 0));
-  TextOut(MH5_Anim.hDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", MH5_Anim.FPS));
+  sprintf(Buf, "FPS: %.3f", MH5_Anim.FPS);
+  SetWindowText(MH5_Anim.hWnd, Buf);
+  if (MH5_Anim.JButClick[1] || MH5_Anim.KeysClick['P'])
+    MH5_Anim.IsPause = !MH5_Anim.IsPause;
   MH5_RndEnd();
 }
 

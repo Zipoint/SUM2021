@@ -61,7 +61,7 @@ static VOID MH5_UnitRender( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitClose( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
 {
-  DeleteObject(&Uni->Plosk);
+  MH5_RndPrimFree(&Uni->Plosk);
 } /* End of 'MH5_UnitClose' function */
 
 mh5UNIT * MH5_UnitCreatePlosk( VOID )

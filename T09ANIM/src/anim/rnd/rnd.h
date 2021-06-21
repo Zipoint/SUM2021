@@ -8,10 +8,15 @@
 #define __rnd_h_
 
 #include "../../def.h"
-extern HWND MH5_hWndRnd;
-extern HDC MH5_hDCRndFrame;
-extern HBITMAP MH5_hBmRndFrame;
+#include <stdio.h>
+
+#define GLEW_STATIC
+#include <glew.h>
+
+extern HWND MH5_hRndWnd;
+extern HDC MH5_hRndDC;
 extern INT MH5_RndFrameW, MH5_RndFrameH;
+extern HGLRC MH5_hRndGLRC;
 
 extern DBL
   MH5_RndProjSize,
@@ -39,7 +44,7 @@ typedef struct tagmh5PRIM
 } mh5PRIM;
 
 VOID MH5_RndCamSet( VEC Loc, VEC At, VEC Up1 );
-VOID MH5_RndCopyFrame( HDC hDC );
+VOID MH5_RndCopyFrame( VOID );
 VOID MH5_RndEnd( VOID );
 VOID MH5_RndStart( VOID );
 VOID MH5_RndResize(INT W, INT H);

@@ -60,7 +60,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   /* Window creation */
   hWnd = 
     CreateWindow(MH5_WND_CLASS_NAME,
-    "T08ANIM",
+    "T09ANIM",
     WS_OVERLAPPEDWINDOW,
     CW_USEDEFAULT, CW_USEDEFAULT,
     CW_USEDEFAULT, CW_USEDEFAULT,
@@ -108,9 +108,6 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
  */
 LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-  HDC hDC;
-  PAINTSTRUCT ps;
-
   switch (Msg)
   {
   case WM_GETMINMAXINFO:
@@ -129,7 +126,6 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
     return 0;
 
   case WM_TIMER:
-    MH5_AnimRender();
     InvalidateRect(hWnd, NULL, FALSE);
     return 0;
 
@@ -137,9 +133,8 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
     return 1;
 
   case WM_PAINT:
-    hDC = BeginPaint(hWnd, &ps);
-    MH5_AnimCopyFrame(hDC);
-    EndPaint(hWnd, &ps);
+    MH5_AnimRender();
+    MH5_AnimCopyFrame();
     return 0;
 
   case WM_DESTROY:
@@ -152,8 +147,6 @@ LRESULT CALLBACK MH5_MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lP
   case WM_KEYDOWN:
     if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
-    else if (wParam == 'P')
-      MH5_Anim.IsPause = !MH5_Anim.IsPause;
     return 0;
 
   case WM_SYSKEYDOWN:

@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreateSphere(&Uni->Ball, VecSet(0, 0, 0), 2, 20, 20);
+  MH5_RndPrimCreateSphere(&Uni->Ball, VecSet(0, 2, 0), 2, 20, 20);
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -48,7 +48,6 @@ static VOID MH5_UnitResponse( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  //MH5_RndCamSet(PointTransform(VecSet(8, 15 + 0 * 5 * sin(Ani->Time), 5), MatrRotateY(-Ani->Time * 27 * 0)), VecSet(0 ,0 ,0), VecSet(0 ,1 ,0));
   MH5_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(Ani->Time), MatrTranslate(VecSet(5, 2 * fabs(0.8 * sin(Ani->Time * 5)), 3))));
 } /* End of 'MH5_UnitRender' function */
 
@@ -62,7 +61,7 @@ static VOID MH5_UnitRender( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitClose( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  DeleteObject(&Uni->Ball);
+  MH5_RndPrimFree(&Uni->Ball);
 } /* End of 'MH5_UnitClose' function */
 
 mh5UNIT * MH5_UnitCreateBall( VOID )

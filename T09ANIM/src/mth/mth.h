@@ -17,14 +17,15 @@
 #define Degree2Radian(a) D2R(a)
 
 typedef double DBL;
+typedef float FLT;
 typedef struct tagVEC
 {
-  DBL X, Y, Z;
+  FLT X, Y, Z;
 } VEC;
 
 typedef struct tagMATR
 {
-  DBL A[4][4];
+  FLT A[4][4];
 } MATR;
 
 static MATR UnitMatrix =
@@ -40,14 +41,14 @@ static MATR UnitMatrix =
 /* Set matr function.
  * ARGUMENTS:
  *     vectors to be add:
- *       DBL X, Y, Z;
+ *       FLT X, Y, Z;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline MATR MatrSet( DBL A00, DBL A01, DBL A02, DBL A03,
-                       DBL A10, DBL A11, DBL A12, DBL A13,
-                       DBL A20, DBL A21, DBL A22, DBL A23,
-                       DBL A30, DBL A31, DBL A32, DBL A33)
+__inline MATR MatrSet( FLT A00, FLT A01, FLT A02, FLT A03,
+                       FLT A10, FLT A11, FLT A12, FLT A13,
+                       FLT A20, FLT A21, FLT A22, FLT A23,
+                       FLT A30, FLT A31, FLT A32, FLT A33)
 {
   MATR r =
   {
@@ -65,11 +66,11 @@ __inline MATR MatrSet( DBL A00, DBL A01, DBL A02, DBL A03,
 /* Set vector function.
  * ARGUMENTS:
  *     vectors to be add:
- *       DBL A, B, C;
+ *       FLT A, B, C;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline VEC VecSet( DBL A, DBL B, DBL C )
+__inline VEC VecSet( FLT A, FLT B, FLT C )
 {
   VEC V;
   V.X = A;
@@ -125,11 +126,11 @@ __inline VEC VecSubVec( VEC V1, VEC V2 )
 /* VecMulNum function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       VEC V1. DBL N;
+ *       VEC V1. FLT N;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline VEC VecMulNum( VEC V1, DBL N )
+__inline VEC VecMulNum( VEC V1, FLT N )
 {
   VEC tmp;
   tmp.X = V1.X * N;
@@ -141,11 +142,11 @@ __inline VEC VecMulNum( VEC V1, DBL N )
 /* VecDivNum function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       VEC V1. DBL N;
+ *       VEC V1. FLT N;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline VEC VecDivNum( VEC V1, DBL N )
+__inline VEC VecDivNum( VEC V1, FLT N )
 {
   VEC tmp;
   tmp.X = V1.X / N;
@@ -175,9 +176,9 @@ __inline VEC VecNeg( VEC V )
  *   - vectors to be add:
  *       VEC V1, V2;
  * RETURNS:
- *   (DBL) result double.
+ *   (FLT) result double.
  */
-__inline DBL VecDotVec( VEC V1, VEC V2 )
+__inline FLT VecDotVec( VEC V1, VEC V2 )
 {
   return V1.X * V2.X + V1.Y * V2.Y + V1.Z * V2.Z;
 } /* end of 'VecDotVec' function*/
@@ -187,11 +188,11 @@ __inline DBL VecDotVec( VEC V1, VEC V2 )
  *   - vectors to be add:
  *       VEC V;
  * RETURNS:
- *   (DBL) result double.
+ *   (FLT) result double.
  */
-__inline DBL VecLen( VEC V )
+__inline FLT VecLen( VEC V )
 {
-  DBL len = VecDotVec(V, V);
+  FLT len = VecDotVec(V, V);
 
   if (len == 1 || len == 0)
     return len;
@@ -207,7 +208,7 @@ __inline DBL VecLen( VEC V )
  */
 __inline VEC VecNormalize(VEC V)
 {
-  DBL len = VecDotVec(V, V);
+  FLT len = VecDotVec(V, V);
 
   if (len == 1 || len == 0)
     return V;
@@ -223,7 +224,7 @@ __inline VEC VecNormalize(VEC V)
  */
 __inline VEC VecMulMatr( VEC V, MATR M )
 {
-  DBL w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
+  FLT w = V.X * M.A[0][3] + V.Y * M.A[1][3] + V.Z * M.A[2][3] + M.A[3][3];
   VEC tmp;
 
   tmp.X = (M.A[0][0] * V.X + M.A[1][0] * V.Y + M.A[2][0] * V.Z + M.A[3][0]) / w;
@@ -236,13 +237,13 @@ __inline VEC VecMulMatr( VEC V, MATR M )
 /* MatrRotate function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL AngleInDegree, VEC R;
+ *       FLT AngleInDegree, VEC R;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrRotate( DBL AngleInDegree, VEC R )
+__inline MATR MatrRotate( FLT AngleInDegree, VEC R )
 {
-  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  FLT A = D2R(AngleInDegree), si = sin(A), co = cos(A);
   VEC V = VecNormalize(R);
   MATR M = 
   {
@@ -301,15 +302,15 @@ __inline MATR MatrMulMatr( MATR M1, MATR M2 )
 /* MatrDeterm3x3 function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL DBL A11, DBL A12, DBL A13,
-             DBL A21, DBL A22, DBL A23,
-             DBL A31, DBL A32, DBL A33;
+ *       FLT FLT A11, FLT A12, FLT A13,
+             FLT A21, FLT A22, FLT A23,
+             FLT A31, FLT A32, FLT A33;
  * RETURNS:
- *   (DBL) result double.
+ *   (FLT) result double.
  */
-__inline DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
-                            DBL A21, DBL A22, DBL A23,
-                            DBL A31, DBL A32, DBL A33 )
+__inline FLT MatrDeterm3x3( FLT A11, FLT A12, FLT A13,
+                            FLT A21, FLT A22, FLT A23,
+                            FLT A31, FLT A32, FLT A33 )
 {
   return A11 * A22 * A33 + A12 * A23 * A31 + A13 * A21 * A32 -
          A11 * A23 * A32 - A12 * A21 * A33 - A13 * A22 * A31;
@@ -320,9 +321,9 @@ __inline DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
  *   - vectors to be add:
  *       MATR M;
  * RETURNS:
- *   (DBL) result double.
+ *   (FLT) result double.
  */
-__inline DBL MatrDeterm( MATR M )
+__inline FLT MatrDeterm( MATR M )
 {
   return
     +M.A[0][0] * MatrDeterm3x3(M.A[1][1], M.A[1][2], M.A[1][3],
@@ -348,7 +349,7 @@ __inline DBL MatrDeterm( MATR M )
  */
 __inline  MATR MatrInverse( MATR M )
 {
-  DBL det = MatrDeterm(M);
+  FLT det = MatrDeterm(M);
   MATR r;
 
   if (det == 0)
@@ -485,13 +486,13 @@ __inline VEC VectorTransform( VEC V, MATR M )
 /* MatrRotateX function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL AngleInDegree;
+ *       FLT AngleInDegree;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrRotateX( DBL AngleInDegree )
+__inline MATR MatrRotateX( FLT AngleInDegree )
 {
-  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  FLT A = D2R(AngleInDegree), si = sin(A), co = cos(A);
   MATR m =
   {
     {
@@ -508,13 +509,13 @@ __inline MATR MatrRotateX( DBL AngleInDegree )
 /* MatrRotateY function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL AngleInDegree;
+ *       FLT AngleInDegree;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrRotateY( DBL AngleInDegree )
+__inline MATR MatrRotateY( FLT AngleInDegree )
 {
-  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  FLT A = D2R(AngleInDegree), si = sin(A), co = cos(A);
   MATR m =
   {
     {
@@ -531,13 +532,13 @@ __inline MATR MatrRotateY( DBL AngleInDegree )
 /* MatrRotateZ function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL AngleInDegree;
+ *       FLT AngleInDegree;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrRotateZ( DBL AngleInDegree )
+__inline MATR MatrRotateZ( FLT AngleInDegree )
 {
-  DBL A = D2R(AngleInDegree), si = sin(A), co = cos(A);
+  FLT A = D2R(AngleInDegree), si = sin(A), co = cos(A);
   MATR m =
   {
     {
@@ -589,22 +590,22 @@ __inline VEC VecCrossVec( VEC V1, VEC V2 )
  *   - vectors to be add:
  *       VEC V;
  * RETURNS:
- *   (DBL) result double.
+ *   (FLT) result double.
  */
-__inline DBL VecLen2( VEC V )
+__inline FLT VecLen2( VEC V )
 {
-  DBL t = VecLen(V);
+  FLT t = VecLen(V);
   return t * t;
 } /* end of 'VecLen2' function*/
 
 /* VecVec1 function.
  * ARGUMENTS:
  *   - vectors to be add:
- *       DBL A;;
+ *       FLT A;;
  * RETURNS:
  *   (VEC) result vector.
  */
-__inline VEC VecVec1( DBL A )
+__inline VEC VecVec1( FLT A )
 {
   VEC r = {A, A, A};
 
@@ -640,11 +641,11 @@ __inline MATR MatrView( VEC Loc, VEC At, VEC Up1 )
 /* Matrix look-at viewer setup function(vector).
  * ARGUMENTS:
  *   - viewer position, look-at point, approximate up direction:
- *       DBL l, r, b, t, n, f;
+ *       FLT l, r, b, t, n, f;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
+__inline MATR MatrFrustum( FLT l, FLT r, FLT b, FLT t, FLT n, FLT f )
 {
   MATR m =
   {
@@ -663,11 +664,11 @@ __inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
 /* Matrix look-at viewer setup function(ortho).
  * ARGUMENTS:
  *   - viewer position, look-at point, approximate up direction:
- *       DBL Left, Right, Bottom, Top, Near, Far;
+ *       FLT Left, Right, Bottom, Top, Near, Far;
  * RETURNS:
  *   (MATR) result matrix.
  */
-__inline MATR MatrOrtho( DBL Left, DBL Right, DBL Bottom, DBL Top, DBL Near, DBL Far )
+__inline MATR MatrOrtho( FLT Left, FLT Right, FLT Bottom, FLT Top, FLT Near, FLT Far )
 {
   MATR m =
   {

@@ -11,7 +11,7 @@ typedef struct
   UNIT_BASE_FIELDS;
   VEC Pos;
   DBL AngleSpeed, Speed;
-  VEC CamLoc, CamDir, CamRight;
+  VEC CamLoc, CamDir, CamRight, CamUp;
 } mh5UNIT_CTRL;
 
 /* Unit initialization function.
@@ -25,8 +25,8 @@ typedef struct
 static VOID MH5_UnitInit( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
   Uni->CamLoc = VecSet(0, 16, 16);
-  Uni->AngleSpeed = 8;
-  Uni->Speed = 3;
+  Uni->AngleSpeed = 40;
+  Uni->Speed = 40;
 } /* End of 'MH5_UnitInit' function */
 
 
@@ -42,6 +42,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
   Uni->CamDir = VecSet(-MH5_RndMatrView.A[0][2], -MH5_RndMatrView.A[1][2], -MH5_RndMatrView.A[2][2]);
   Uni->CamRight = VecSet(MH5_RndMatrView.A[0][0], MH5_RndMatrView.A[1][0], MH5_RndMatrView.A[2][0]);
+  Uni->CamUp = VecSet(MH5_RndMatrView.A[0][1], MH5_RndMatrView.A[1][1], MH5_RndMatrView.A[2][1]);
   Uni->CamLoc =
     PointTransform(Uni->CamLoc,
       MatrRotateY(-Ani->Keys[VK_LBUTTON] *
@@ -55,13 +56,20 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
        Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->Mdy, Uni->CamRight));
   Uni->CamLoc =
     PointTransform(Uni->CamLoc,
-      MatrRotateY(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JY * 30));
-  Uni->CamLoc =
-    VecAddVec(Uni->CamLoc,
-      VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * Ani->JZ * 30));
+      MatrRotateY(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JX));
   Uni->CamLoc =
      PointTransform(Uni->CamLoc,
-       MatrRotate(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JY * 30, Uni->CamRight));
+       MatrRotate(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JY, Uni->CamRight));
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+      VecMulNum(Uni->CamDir, Ani->GlobalDeltaTime * Uni->Speed * Ani->JBut[7] / 2));
+  Uni->CamLoc =
+    VecAddVec(Uni->CamLoc,
+     VecMulNum(Uni->CamDir, -Ani->GlobalDeltaTime * Uni->Speed * Ani->JBut[6] / 2));
+  if (Ani->JButClick[0] == 1)
+    MH5_AnimFlipFullScreen();
+  if (Ani->JBut[4] == 1)
+    SendMessage(MH5_hRndWnd, WM_CLOSE, 0, 0);
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
@@ -74,7 +82,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndCamSet(Uni->CamLoc, VecSet(0, 0 ,0), VecSet(0, 1, 0));
+  MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

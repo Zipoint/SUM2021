@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimLoad(&Uni->Pig, "pig.obj");
+  MH5_RndPrimLoad(&Uni->Pig, "BIN/MODELS/pig.obj");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -61,7 +61,7 @@ static VOID MH5_UnitRender( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitClose( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  DeleteObject(&Uni->Pig);
+  MH5_RndPrimFree(&Uni->Pig);
 } /* End of 'MH5_UnitClose' function */
 
 mh5UNIT * MH5_UnitCreatePig( VOID )
