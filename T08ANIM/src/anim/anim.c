@@ -69,7 +69,7 @@ VOID MH5_AnimRender( VOID )
 
   SetBkMode(MH5_Anim.hDC, TRANSPARENT);
   SetTextColor(MH5_Anim.hDC, RGB(0, 255, 0));
-  TextOut(MH5_Anim.hDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f", MH5_Anim.FPS));
+  TextOut(MH5_Anim.hDC, 8, 8, Buf, sprintf(Buf, "FPS: %.3f %d %d %d", MH5_Anim.FPS, MH5_Anim.JBut[8], MH5_Anim.JBut[9], MH5_Anim.JBut[10]));
   MH5_RndEnd();
 }
 

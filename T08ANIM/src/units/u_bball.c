@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreateSphere(&Uni->Ball, VecSet(0, 0, 0), 2, 20, 20);
+  MH5_RndPrimCreateSphere(&Uni->Ball, VecSet(0, 2, 0), 2, 20, 20);
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
