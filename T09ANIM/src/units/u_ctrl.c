@@ -43,6 +43,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
   Uni->CamDir = VecSet(-MH5_RndMatrView.A[0][2], -MH5_RndMatrView.A[1][2], -MH5_RndMatrView.A[2][2]);
   Uni->CamRight = VecSet(MH5_RndMatrView.A[0][0], MH5_RndMatrView.A[1][0], MH5_RndMatrView.A[2][0]);
   Uni->CamUp = VecSet(MH5_RndMatrView.A[0][1], MH5_RndMatrView.A[1][1], MH5_RndMatrView.A[2][1]);
+  /* Mouse control */
   Uni->CamLoc =
     PointTransform(Uni->CamLoc,
       MatrRotateY(-Ani->Keys[VK_LBUTTON] *
@@ -54,6 +55,8 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
      PointTransform(Uni->CamLoc,
        MatrRotate(-Ani->Keys[VK_LBUTTON] *
        Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->Mdy, Uni->CamRight));
+
+  /* JOY control */
   Uni->CamLoc =
     PointTransform(Uni->CamLoc,
       MatrRotateY(Ani->GlobalDeltaTime * Uni->AngleSpeed * Ani->JX));
@@ -82,7 +85,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
+  //MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

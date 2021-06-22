@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreatePlosk(&Uni->Plosk, VecSet(-20, 0 ,-20), 0.1, 20, 20);
+  MH5_RndPrimCreatePlosk(&Uni->Plosk, VecSet(-30, 0 ,-30), 0.1, 30, 30);
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -36,6 +36,7 @@ static VOID MH5_UnitInit( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitResponse( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
 {
+
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
