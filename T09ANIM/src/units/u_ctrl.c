@@ -85,7 +85,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  //MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
+  MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

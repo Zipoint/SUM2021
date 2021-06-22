@@ -78,6 +78,7 @@ VOID MH5_RndInit( HWND hWnd )
   wglMakeCurrent(MH5_hRndDC, MH5_hRndGLRC);
   /* Set default OpenGL parameters */
   glEnable(GL_DEPTH_TEST);
+  glClearColor(0.30, 0.47, 0.8, 1);
 }
 
 VOID MH5_RndClose( VOID )

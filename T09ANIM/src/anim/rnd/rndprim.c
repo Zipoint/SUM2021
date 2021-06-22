@@ -9,26 +9,70 @@
 #include <ctype.h>
 #include "rnd.h"
 
-BOOL MH5_RndPrimCreate( mh5PRIM *Pr, INT NoofV, INT NoofI )
+/* Primitive creation function.
+ * ARGUMENTS:
+ *   - primitive pointer:
+ *       mh5PRIM *Pr;
+ *   - vertex attributes array:
+ *       mh5VERTEX *V;
+ *   - number of vertices:
+ *       INT NumOfV;
+ *   - index array (for trimesh – by 3 ones, may be NULL)
+ *       INT *I;
+ *   - number of indices
+ *       INT NumOfI;
+ * RETURNS: None.
+ */
+VOID MH5_RndPrimCreate( mh5PRIM *Pr, mh5VERTEX *V, INT NumOfV, INT *I, INT NumOfI )
 {
-  INT size;
-
   memset(Pr, 0, sizeof(mh5PRIM));   /* <-- <string.h> */
-  size = sizeof(mh5VERTEX) * NoofV + sizeof(INT) * NoofI;
 
-  if ((Pr->V = malloc(size)) == NULL)
-    return FALSE;
-  Pr->I = (INT *)(Pr->V + NoofV);
-  Pr->NumOfV = NoofV;
-  Pr->NumOfI = NoofI;
+  if (V != NULL && NumOfV != 0)
+  {
+    glGenBuffers(1, &Pr->VBuf);
+    glGenVertexArrays(1, &Pr->VA);
+
+    glBindVertexArray(Pr->VA);
+    glBindBuffer(GL_ARRAY_BUFFER, Pr->VBuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(mh5VERTEX) * NumOfV, V, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, FALSE, sizeof(mh5VERTEX),
+                          (VOID *)0); /* position */
+    glVertexAttribPointer(1, 2, GL_FLOAT, FALSE, sizeof(mh5VERTEX),
+                          (VOID *)sizeof(VEC)); /* texture coordinates */
+    glVertexAttribPointer(2, 3, GL_FLOAT, FALSE, sizeof(mh5VERTEX),
+                          (VOID *)(sizeof(VEC) + sizeof(VEC2))); /* normal */
+    glVertexAttribPointer(3, 4, GL_FLOAT, FALSE, sizeof(mh5VERTEX),
+                          (VOID *)(sizeof(VEC) * 2 + sizeof(VEC2))); /* color */
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glBindVertexArray(0);
+  }
+
+  if (I != NULL && NumOfI != 0)
+  {
+    glGenBuffers(1, &Pr->IBuf);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(INT) * NumOfI, I, GL_STATIC_DRAW);
+    Pr->NumOfElements = NumOfI;
+  }
+  else
+    Pr->NumOfElements = NumOfV;
   Pr->Trans = MatrIdentity();
-  memset(Pr->V, 0, size);
+} /* End of 'MH5_RndPrimCreate' function */
 
-  return TRUE;
-}
 
 VOID MH5_RndPrimFree( mh5PRIM *Pr )
 {
+  glBindVertexArray(Pr->VA);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glDeleteBuffers(1, &Pr->VBuf);
+  glBindVertexArray(0);
+  glDeleteVertexArrays(1, &Pr->VA);
+
   if (Pr->V != NULL)
     free(Pr->V);
   memset(Pr, 0, sizeof(mh5PRIM));
@@ -36,96 +80,130 @@ VOID MH5_RndPrimFree( mh5PRIM *Pr )
 
 VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World )
 {
-  INT i;
   MATR wvp = MatrMulMatr3(Pr->Trans, World, MH5_RndMatrVP);
 
   glLoadMatrixf(wvp.A[0]);
 
-  /* Draw triangles */
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  glBegin(GL_TRIANGLES);
-  for (i = 0; i < Pr->NumOfI; i++)
-    glVertex3fv(&Pr->V[Pr->I[i]].P.X);
-  glEnd();
+  glBindVertexArray(Pr->VA);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
+  glDrawElements(GL_TRIANGLES, Pr->NumOfElements, GL_UNSIGNED_INT, NULL);
+  glBindVertexArray(0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 BOOL MH5_RndPrimCreateSphere( mh5PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH )
 {
   INT i, j;
-  DBL phi, theta;
-  INT r = 3;
+  DBL phi, theta, x, y, z;
+  VEC L = {1, 1, 1};
+  mh5VERTEX *V;
 
-  if (!MH5_RndPrimCreateGrid(Pr, SplitW, SplitH))
+  if ((V = malloc(sizeof(mh5VERTEX) * SplitW * SplitH)) == NULL)
     return FALSE;
 
   for (i = 0, theta = 0; i < SplitH; i++, theta += PI / (SplitH - 1))
     for (j = 0, phi = 0; j < SplitW; j++, phi += 2 * PI / (SplitW - 1))
-      Pr->V[i * SplitW + j].P = VecSet(C.X + R * sin(phi) * sin(theta),
-                                       C.Y + R * cos(theta),
-                                       C.Z + R * sin(theta) * cos(phi));
-
-    return TRUE;
+    {
+      VEC N;
+      INT nl;
+      N = VecNormalize(VecMulNum(VecSubVec(V[i * SplitW + j].P, C), 1 / R));
+      nl = VecDotVec(N, L);
+      if (nl < 0.1)
+        nl = 0.1;
+      V[i].C = Vec4Set(0.8 * nl, 0.5 * nl, 0.3 * nl, 1);
+      x = sin(phi) * sin(theta);
+      y = cos(theta);
+      z = sin(theta) * cos(phi);
+      V[i * SplitW + j].P = VecSet(C.X + R * x,
+                                   C.Y + R * y,
+                                   C.Z + R * z);
+    }
+  MH5_RndPrimCreateGrid(Pr, SplitW, SplitH, V);
+  free(V);
+  return TRUE;
 }
 
 BOOL MH5_RndPrimCreateTor( mh5PRIM *Pr, VEC C, DBL R, DBL r, INT SplitW, INT SplitH )
 {
   INT i, j;
   DBL phi, theta;
+  mh5VERTEX *V;
 
-  if (!MH5_RndPrimCreateGrid(Pr, SplitW, SplitH))
+  if ((V = malloc(sizeof(mh5VERTEX) * SplitW * SplitH)) == NULL)
     return FALSE;
 
   for (i = 0, theta = 0; i < SplitH; i++, theta += 2 * PI / (SplitH - 1))
     for (j = 0, phi = 0; j < SplitW; j++, phi += 2 * PI / (SplitW - 1))
-      Pr->V[i * SplitW + j].P = VecSet(C.X + sin(phi) * (R + r * cos(theta)),
-                                       C.Y + r * sin(theta),
-                                       C.Z + (R + r * cos(theta)) * cos(phi));
+      V[i * SplitW + j].P = VecSet(C.X + sin(phi) * (R + r * cos(theta)),
+                                   C.Y + r * sin(theta),
+                                   C.Z + (R + r * cos(theta)) * cos(phi));
 
-    return TRUE;
+  MH5_RndPrimCreateGrid(Pr, SplitW, SplitH, V);
+  free(V);
+  return TRUE;
 }
 
 BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH )
 {
   INT i, j;
+  mh5VERTEX *V;
 
-  if (!MH5_RndPrimCreateGrid(Pr, SplitW, SplitH))
+  if ((V = malloc(sizeof(mh5VERTEX) * SplitW * SplitH)) == NULL)
     return FALSE;
 
   for (i = 0; i < SplitH; i++)
     for (j = 0; j < SplitW; j++)
-      Pr->V[i * SplitW + j].P = VecSet(C.X + i * D * (SplitH - 1) + j * D,
-                                       C.Y,
-                                       C.Z + j * D * (SplitW - 1) + i * D);
+    {
+      VEC4 c = {0.2, 1, 0.2, 1};
+      V[i * SplitW + j].P = VecSet(C.X + i * D * (SplitH - 1) + j * D,
+                                   C.Y,
+                                   C.Z + j * D * (SplitW - 1) + i * D);
+      V[i * SplitW + j].C = c;
+    }
 
+  MH5_RndPrimCreateGrid(Pr, SplitW, SplitH, V);
+  free(V);
   return TRUE;
 }
 
-BOOL MH5_RndPrimCreateGrid( mh5PRIM *Pr, INT SplitW, INT SplitH )
+BOOL MH5_RndPrimCreateGrid( mh5PRIM *Pr, INT SplitW, INT SplitH, mh5VERTEX *V )
 {
-  INT i, j, k;
+  INT i, j, k, *Ind;
 
-  if (!MH5_RndPrimCreate(Pr, SplitH * SplitW, (SplitW - 1) * (SplitH - 1) * 6))
+  if ((Ind = malloc(sizeof(INT) * ((SplitW - 1) * (SplitH - 1) * 6))) == NULL)
     return FALSE;
 
   for (i = 0, k = 0; i < SplitH - 1; i++)
     for (j = 0; j < SplitW - 1; j++)
     {
-      Pr->I[k++] = i * SplitW + j;
-      Pr->I[k++] = i * SplitW + j + 1;
-      Pr->I[k++] = (i + 1) * SplitW + j;
+      Ind[k++] = i * SplitW + j;
+      Ind[k++] = i * SplitW + j + 1;
+      Ind[k++] = (i + 1) * SplitW + j;
 
-      Pr->I[k++] = (i + 1) * SplitW + j;
-      Pr->I[k++] = i * SplitW + j + 1;
-      Pr->I[k++] = (i + 1) * SplitW + j + 1;
+      Ind[k++] = (i + 1) * SplitW + j;
+      Ind[k++] = i * SplitW + j + 1;
+      Ind[k++] = (i + 1) * SplitW + j + 1;
     }
 
-    return TRUE;
+  MH5_RndPrimCreate(Pr, V, SplitH * SplitW, Ind, (SplitW - 1) * (SplitH - 1) * 6);
+  free(Ind);
+
+  return TRUE;
 }
 
 /* Load primitive from '*.OBJ' file function.
  * ARGUMENTS:
  *   - pointer to primitive to load:
- *       vg4PRIM *Pr;
+ *       mh5PRIM *Pr;
+ *   - '*.OBJ' file name:
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (BOOL) TRUE if success, FALSE otherwise.
+ */
+/* Load primitive from '*.OBJ' file function.
+ * ARGUMENTS:
+ *   - pointer to primitive to load:
+ *       mh5PRIM *Pr;
  *   - '*.OBJ' file name:
  *       CHAR *FileName;
  * RETURNS:
@@ -135,7 +213,11 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
 {
   FILE *F;
   INT i, nv = 0, nind = 0;
+  mh5VERTEX *V;
+  INT *Ind;
   static CHAR Buf[1000];
+  FLT nl;
+  VEC L = {1, 1, 1};
 
   memset(Pr, 0, sizeof(mh5PRIM));
   if ((F = fopen(FileName, "r")) == NULL)
@@ -157,11 +239,10 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
     }
   }
 
-  if (!MH5_RndPrimCreate(Pr, nv, nind))
-  {
-    fclose(F);
+  if ((V = malloc(sizeof(mh5VERTEX) * nv + sizeof(INT) * nind)) == NULL)
     return FALSE;
-  }
+  Ind = (INT *)(V + nv);
+  memset(V, 0, sizeof(mh5VERTEX) * nv + sizeof(INT) * nind);
 
   /* Load primitive */
   rewind(F);
@@ -174,7 +255,7 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
       DBL x, y, z;
 
       sscanf(Buf + 2, "%lf%lf%lf", &x, &y, &z);
-      Pr->V[nv++].P = VecSet(x, y, z);
+      V[nv++].P = VecSet(x, y, z);
     }
     else if (Buf[0] == 'f' && Buf[1] == ' ')
     {
@@ -195,9 +276,9 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
             n1 = nc;
           else
           {
-            Pr->I[nind++] = n0;
-            Pr->I[nind++] = n1;
-            Pr->I[nind++] = nc;
+            Ind[nind++] = n0;
+            Ind[nind++] = n1;
+            Ind[nind++] = nc;
             n1 = nc;
           }
           n++;
@@ -205,9 +286,36 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
     }
   }
 
-  fclose(F);
-  return TRUE;
-} /* End of 'VG4_RndPrimLoad' function */
+  for (i = 0; i < nv; i++)
+      V[i].N = VecSet(0, 0, 0);
 
+  for (i = 0; i < nind; i += 3)
+    {
+      VEC
+        p0 = V[Ind[i]].P,
+        p1 = V[Ind[i + 1]].P,
+        p2 = V[Ind[i + 2]].P,
+        N = VecNormalize(VecCrossVec(VecSubVec(p1, p0), VecSubVec(p2, p0)));
+
+      V[Ind[i]].N = VecAddVec(V[Ind[i]].N, N); /* VecAddVecEq(&V[Ind[i]].N, N); */
+      V[Ind[i + 1]].N = VecAddVec(V[Ind[i + 1]].N, N);
+      V[Ind[i + 2]].N = VecAddVec(V[Ind[i + 2]].N, N);
+    }
+
+  for (i = 0; i < nv; i++)
+  {
+    V[i].N = VecNormalize(V[i].N);
+    nl = VecDotVec(V[i].N, L);
+    if (nl < 0.1)
+      nl = 0.1;
+    V[i].C = Vec4Set(0.9 * nl, 0.6 * nl, 0.8 * nl, 1);
+  }
+
+  fclose(F);
+  MH5_RndPrimCreate(Pr, V, nv, Ind, nind);
+  free(V);
+
+  return TRUE;
+} /* End of 'MH5_RndPrimLoad' function */
 
 /* END OF 'rndprim.h' FILE */

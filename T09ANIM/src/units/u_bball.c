@@ -48,7 +48,7 @@ static VOID MH5_UnitResponse( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(Ani->Time), MatrTranslate(VecSet(5, 2 * fabs(0.8 * sin(Ani->Time * 5)), 3))));
+  MH5_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(Ani->Time), MatrTranslate(VecSet(9, 2 * fabs(0.8 * sin(Ani->Time * 5)), 3))));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

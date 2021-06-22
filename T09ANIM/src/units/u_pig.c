@@ -41,24 +41,24 @@ static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  Uni->PigLoc =
-    VecAddVec(Uni->PigLoc,
-      VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20 * Ani->Keys['W']));
-  Uni->PigLoc =
-    VecAddVec(Uni->PigLoc,
-      VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20 * -Ani->Keys['S']));
-  Uni->PigLoc =
-    VecAddVec(Uni->PigLoc,
-      VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20 * Ani->Keys['D']));
-  Uni->PigLoc =
-    VecAddVec(Uni->PigLoc,
-      VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20 * -Ani->Keys['A']));
-
-  //Uni->CamDir = VecSet();
-  //Uni->CamRight = VecSet();
-
-  Uni->CamLoc = VecSet(Uni->PigLoc.X - 10, 10, Uni->PigLoc.Z);
-  Uni->CamDir = VecSet(Uni->PigLoc.X + 1, 0, Uni->PigLoc.Z);
+  if (Ani->JPov == 0)
+    Uni->PigLoc =
+      VecAddVec(Uni->PigLoc,
+        VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20));
+  if (Ani->JPov == 4)
+    Uni->PigLoc =
+      VecAddVec(Uni->PigLoc,
+        VecMulNum(Uni->PigDir, -Ani->GlobalDeltaTime * 20));
+  if (Ani->JPov == 6)
+    Uni->PigLoc =
+      VecAddVec(Uni->PigLoc,
+        VecMulNum(Uni->PigRight, -Ani->GlobalDeltaTime * 20));
+  if (Ani->JPov == 2)
+    Uni->PigLoc =
+      VecAddVec(Uni->PigLoc,
+        VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20));
+  //Uni->PigDir = VecSet();
+  //Uni->PigRight = VecSet();
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
@@ -71,7 +71,6 @@ static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  MH5_RndCamSet(Uni->CamLoc, Uni->CamDir, VecSet(0, 1, 0));
   MH5_RndPrimDraw(&Uni->Pig, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->PigLoc)));
 } /* End of 'MH5_UnitRender' function */
 

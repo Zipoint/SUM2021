@@ -28,6 +28,16 @@ typedef struct tagMATR
   FLT A[4][4];
 } MATR;
 
+typedef struct tagVEC2
+{
+  FLT X, Y;
+} VEC2;
+
+typedef struct tagVEC4
+{
+  FLT X, Y, Z, W;
+} VEC4;
+
 static MATR UnitMatrix =
 {
   {
@@ -696,6 +706,16 @@ __inline MATR MatrMulMatr3( MATR A, MATR B, MATR C)
 __inline MATR MatrMulMatr4( MATR A, MATR B, MATR C, MATR D )
 {
   return MatrMulMatr(MatrMulMatr3(A, B, C), D);
+}
+
+__inline VEC4 Vec4Set( FLT A, FLT B, FLT C, FLT D )
+{
+  VEC4 l;
+  l.X = A;
+  l.Y = B;
+  l.Z = C;
+  l.W = D;
+  return l;
 }
 #endif /* __mth_h_ */
 
