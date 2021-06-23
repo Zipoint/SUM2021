@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "rnd.h"
+#include "../anim.h"
 
 /* Primitive creation function.
  * ARGUMENTS:
@@ -25,7 +25,7 @@
  */
 VOID MH5_RndPrimCreate( mh5PRIM *Pr, mh5VERTEX *V, INT NumOfV, INT *I, INT NumOfI )
 {
-  memset(Pr, 0, sizeof(mh5PRIM));   /* <-- <string.h> */
+  memset(Pr, 0, sizeof(mh5PRIM));
 
   if (V != NULL && NumOfV != 0)
   {
@@ -81,8 +81,19 @@ VOID MH5_RndPrimFree( mh5PRIM *Pr )
 VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World )
 {
   MATR wvp = MatrMulMatr3(Pr->Trans, World, MH5_RndMatrVP);
-
+  INT loc;
+  INT ProgId;
   glLoadMatrixf(wvp.A[0]);
+
+  ProgId = MH5_RndShaders[0].ProgId;
+  glUseProgram(ProgId);
+
+  if ((loc = glGetUniformLocation(ProgId, "MatrWVP")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, wvp.A[0]);
+  if ((loc = glGetUniformLocation(ProgId, "Time")) != -1)
+    glUniform1f(loc, MH5_Anim.Time);
+  glUseProgram(0);
+
 
   glBindVertexArray(Pr->VA);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
@@ -105,19 +116,22 @@ BOOL MH5_RndPrimCreateSphere( mh5PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH 
     for (j = 0, phi = 0; j < SplitW; j++, phi += 2 * PI / (SplitW - 1))
     {
       VEC N;
-      INT nl;
-      N = VecNormalize(VecMulNum(VecSubVec(V[i * SplitW + j].P, C), 1 / R));
-      nl = VecDotVec(N, L);
-      if (nl < 0.1)
-        nl = 0.1;
-      V[i].C = Vec4Set(0.8 * nl, 0.5 * nl, 0.3 * nl, 1);
+      FLT nl;
+
       x = sin(phi) * sin(theta);
       y = cos(theta);
       z = sin(theta) * cos(phi);
       V[i * SplitW + j].P = VecSet(C.X + R * x,
                                    C.Y + R * y,
                                    C.Z + R * z);
+
+      N = VecNormalize(VecSubVec(V[i * SplitW + j].P, C));
+      nl = VecDotVec(N, L);
+      if (nl < 0.1)
+        nl = 0.1;
+      V[i * SplitW + j].C = Vec4Set(0.8 * nl, 0.5 * nl, 0.3 * nl, 1);
     }
+
   MH5_RndPrimCreateGrid(Pr, SplitW, SplitH, V);
   free(V);
   return TRUE;
@@ -145,8 +159,13 @@ BOOL MH5_RndPrimCreateTor( mh5PRIM *Pr, VEC C, DBL R, DBL r, INT SplitW, INT Spl
 
 BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH )
 {
-  INT i, j;
+  INT i, j, *Ind, k;
   mh5VERTEX *V;
+  FLT nl;
+  VEC L = {1, 1, 1};
+
+  if ((Ind = malloc(sizeof(INT) * ((SplitW - 1) * (SplitH - 1) * 6))) == NULL)
+    return FALSE;
 
   if ((V = malloc(sizeof(mh5VERTEX) * SplitW * SplitH)) == NULL)
     return FALSE;
@@ -154,12 +173,47 @@ BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH )
   for (i = 0; i < SplitH; i++)
     for (j = 0; j < SplitW; j++)
     {
-      VEC4 c = {0.2, 1, 0.2, 1};
       V[i * SplitW + j].P = VecSet(C.X + i * D * (SplitH - 1) + j * D,
-                                   C.Y,
+                                   C.Y + 0.8 * sin(i) + 0.2 * cos(j),
                                    C.Z + j * D * (SplitW - 1) + i * D);
-      V[i * SplitW + j].C = c;
     }
+
+  for (i = 0, k = 0; i < SplitH - 1; i++)
+    for (j = 0; j < SplitW - 1; j++)
+    {
+      Ind[k++] = i * SplitW + j;
+      Ind[k++] = i * SplitW + j + 1;
+      Ind[k++] = (i + 1) * SplitW + j;
+
+      Ind[k++] = (i + 1) * SplitW + j;
+      Ind[k++] = i * SplitW + j + 1;
+      Ind[k++] = (i + 1) * SplitW + j + 1;
+    }
+
+  for (i = 0; i < SplitH * SplitW; i++)
+    V[i].N = VecSet(0, 0, 0);
+
+  for (i = 0; i < (SplitH - 1) * (SplitW - 1) * 6; i += 3)
+    {
+      VEC
+        p0 = V[Ind[i]].P,
+        p1 = V[Ind[i + 1]].P,
+        p2 = V[Ind[i + 2]].P,
+        N = VecNormalize(VecCrossVec(VecSubVec(p1, p0), VecSubVec(p2, p0)));
+
+      V[Ind[i]].N = VecAddVec(V[Ind[i]].N, N);
+      V[Ind[i + 1]].N = VecAddVec(V[Ind[i + 1]].N, N);
+      V[Ind[i + 2]].N = VecAddVec(V[Ind[i + 2]].N, N);
+    }
+
+  for (i = 0; i < SplitH * SplitW; i++)
+  {
+    V[i].N = VecNormalize(V[i].N);
+    nl = VecDotVec(V[i].N, L);
+    if (nl < 0.1)
+      nl = 0.1;
+    V[i].C = Vec4Set(0.1 * nl, 0.3 * nl, 0.13 * nl, 1);
+  }
 
   MH5_RndPrimCreateGrid(Pr, SplitW, SplitH, V);
   free(V);
@@ -297,7 +351,7 @@ BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName )
         p2 = V[Ind[i + 2]].P,
         N = VecNormalize(VecCrossVec(VecSubVec(p1, p0), VecSubVec(p2, p0)));
 
-      V[Ind[i]].N = VecAddVec(V[Ind[i]].N, N); /* VecAddVecEq(&V[Ind[i]].N, N); */
+      V[Ind[i]].N = VecAddVec(V[Ind[i]].N, N);
       V[Ind[i + 1]].N = VecAddVec(V[Ind[i + 1]].N, N);
       V[Ind[i + 2]].N = VecAddVec(V[Ind[i + 2]].N, N);
     }

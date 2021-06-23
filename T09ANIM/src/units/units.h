@@ -13,6 +13,8 @@ mh5UNIT * MH5_UnitCreateBall( VOID );
 mh5UNIT * MH5_UnitCreatePlosk( VOID );
 mh5UNIT * MH5_UnitCreatePig( VOID );
 mh5UNIT * MH5_UnitCreateCtrl( VOID );
+mh5UNIT * MH5_UnitCreateTrees( VOID );
+mh5UNIT * MH5_UnitCreateHause( VOID );
 
 #endif /* __units_h_ */
 /* END OF 'units.h' FILE */

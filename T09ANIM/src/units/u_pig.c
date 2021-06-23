@@ -13,6 +13,7 @@ typedef struct
   mh5PRIM Pig;
   VEC PigLoc, PigDir, PigRight, PigLocOld;
   VEC CamLoc, CamDir;
+  FLT P;
 } mh5UNIT_PIG;
 
 /* Unit initialization function.
@@ -26,7 +27,7 @@ typedef struct
 static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
   Uni->PigDir = VecSet(1, 0, 0);
-  Uni->PigLoc = VecSet(1, 0, 1);
+  Uni->PigLoc = VecSet(0, 0, 0);
   Uni->PigRight = VecSet(0, 0, 1);
   MH5_RndPrimLoad(&Uni->Pig, "BIN/MODELS/pig.obj");
 } /* End of 'MH5_UnitInit' function */
@@ -42,23 +43,35 @@ static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
   if (Ani->JPov == 0)
+  {
     Uni->PigLoc =
       VecAddVec(Uni->PigLoc,
         VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20));
+  }
   if (Ani->JPov == 4)
+  {
     Uni->PigLoc =
       VecAddVec(Uni->PigLoc,
         VecMulNum(Uni->PigDir, -Ani->GlobalDeltaTime * 20));
+  }
   if (Ani->JPov == 6)
+  {
+    Uni->PigLocOld = Uni->PigLoc;
+    Uni->PigLoc = VecSet(0, 0, 0);
+    Uni->P += 0.03;
     Uni->PigLoc =
       VecAddVec(Uni->PigLoc,
         VecMulNum(Uni->PigRight, -Ani->GlobalDeltaTime * 20));
+  }
   if (Ani->JPov == 2)
+  {
+    Uni->PigLocOld = Uni->PigLoc;
+    Uni->PigLoc = VecSet(0, 0, 0);
+    Uni->P -= 0.03;
     Uni->PigLoc =
       VecAddVec(Uni->PigLoc,
         VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20));
-  //Uni->PigDir = VecSet();
-  //Uni->PigRight = VecSet();
+  }
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
@@ -71,7 +84,8 @@ static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Pig, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->PigLoc)));
+  MH5_RndPrimDraw(&Uni->Pig, MatrMulMatr3(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->PigLoc), MatrRotateY(Uni->P)));
+  Uni->PigLoc = Uni->PigLocOld;
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

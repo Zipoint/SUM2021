@@ -43,6 +43,19 @@ typedef struct tagmh5PRIM
   MATR Trans;   /* Additional transformation matrix */
 } mh5PRIM;
 
+#define MH5_STR_MAX 300
+
+typedef struct tagmh5SHADER
+{
+  CHAR Name[MH5_STR_MAX];
+  INT ProgId;
+} mh5SHADER;
+
+#define MH5_MAX_SHADERS 30
+
+extern mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
+extern INT MH5_RndShadersSize;
+
 VOID MH5_RndCamSet( VEC Loc, VEC At, VEC Up1 );
 VOID MH5_RndCopyFrame( VOID );
 VOID MH5_RndEnd( VOID );
@@ -59,6 +72,62 @@ BOOL MH5_RndPrimCreateGrid( mh5PRIM *Pr, INT SplitW, INT SplitH, mh5VERTEX *V );
 BOOL MH5_RndPrimCreateTor( mh5PRIM *Pr, VEC C, DBL R, DBL r, INT SplitW, INT SplitH );
 BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH );
 BOOL MH5_RndPrimLoad( mh5PRIM *Pr, CHAR *FileName );
+INT MH5_RndShaderAdd( CHAR *FileNamePrefix );
+
+VOID MH5_RndShdLog( CHAR *FileNamePrefix, CHAR *ShaderName, CHAR *Text );
+
+/* Load shader text from file function.
+ * ARGUMENTS:
+ *   - text file name:
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (CHAR *) load text.
+ */
+CHAR * MH5_RndLoadTextFromFile( CHAR *FileName );
+
+/* Load shader program function.
+ * ARGUMENTS:
+ *   - shader folder prefix (in 'BIN/SHADERS/***'):
+ *       CHAR *FileNamePrefix;
+ * RETUNS:
+ *   (INT) load shader program Id.
+ */
+INT MH5_RndShdLoad( CHAR *FileNamePrefix );
+
+/* Delete shader program function.
+ * ARGUMENTS:
+ *   - shader program Id:
+ *       INT ProgId;
+ * RETUNS: None.
+ */
+VOID MH5_RndShdFree( INT ProgId );
+
+/* Shader stock initialization function.
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID MH5_RndShadersInit( VOID );
+
+/* Shader stock deinitialization function.
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID MH5_RndShadersClose( VOID );
+
+/* Shader add to stock function.
+ * ARGUMENTS:
+ *   - shader folder prefix:
+ *       CHAR *FileNamePrefix;
+ * RETURNS:
+ *   (INT) shader number in stock.
+ */
+INT MH5_RndShaderAdd( CHAR *FileNamePrefix );
+
+/* Shader stock update function.
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID MH5_RndShadersUpdate( VOID );
 
 #endif /* __rnd_h_ */
 

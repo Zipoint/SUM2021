@@ -79,14 +79,15 @@ VOID MH5_RndInit( HWND hWnd )
   /* Set default OpenGL parameters */
   glEnable(GL_DEPTH_TEST);
   glClearColor(0.30, 0.47, 0.8, 1);
+  MH5_RndShadersInit();
 }
 
 VOID MH5_RndClose( VOID )
 {
+  MH5_RndShadersClose();
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(MH5_hRndGLRC);
   ReleaseDC(MH5_hRndWnd, MH5_hRndDC);
-
 }
 
 VOID MH5_RndProjSet( VOID )

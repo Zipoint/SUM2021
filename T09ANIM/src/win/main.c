@@ -34,6 +34,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   WNDCLASS wc;
   HWND hWnd;
   MSG msg;
+  INT i;
 
   SetDbgMemHooks();
 
@@ -76,6 +77,9 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   MH5_AnimAddUnit(MH5_UnitCreateBall());
   MH5_AnimAddUnit(MH5_UnitCreatePlosk());
   MH5_AnimAddUnit(MH5_UnitCreatePig());
+  //MH5_AnimAddUnit(MH5_UnitCreateHause());
+  for (i = 0; i < 3; i++)
+    MH5_AnimAddUnit(MH5_UnitCreateTrees());
   MH5_AnimAddUnit(MH5_UnitCreateCtrl());
 
   /* Message loop */
