@@ -35,8 +35,17 @@ typedef struct tagmh5VERTEX
   VEC4 C;
 } mh5VERTEX;
 
+typedef enum tagmh5PRIM_TYPE
+{
+  MH5_RND_PRIM_TRIMESH,  /* Triangle mesh - array of triangles */
+  MH5_RND_PRIM_TRISTRIP, /* Triangle strip - array of stripped triangles */
+  MH5_RND_PRIM_LINES,    /* Line segments (by 2 points) */
+  MH5_RND_PRIM_POINTS,   /* Arrauy of points */
+} mh5PRIM_TYPE;
+
 typedef struct tagmh5PRIM
 {
+  mh5PRIM_TYPE Type;
   mh5VERTEX *V;
   INT VBuf, VA, IBuf, NumOfElements, NumOfV;
 

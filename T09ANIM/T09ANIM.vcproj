@@ -266,6 +266,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\units\u_hmap.c"
+					>
+				</File>
+				<File
 					RelativePath=".\src\units\u_pig.c"
 					>
 				</File>

@@ -17,7 +17,7 @@
  *       mh5VERTEX *V;
  *   - number of vertices:
  *       INT NumOfV;
- *   - index array (for trimesh – by 3 ones, may be NULL)
+ *   - index array (for trimesh - by 3 ones, may be NULL)
  *       INT *I;
  *   - number of indices
  *       INT NumOfI;
@@ -83,6 +83,12 @@ VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World )
   MATR wvp = MatrMulMatr3(Pr->Trans, World, MH5_RndMatrVP);
   INT loc;
   INT ProgId;
+  INT gl_prim_type = Pr->Type == MH5_RND_PRIM_LINES ? GL_LINES :
+                     Pr->Type == MH5_RND_PRIM_TRIMESH ? GL_TRIANGLES :
+                     Pr->Type == MH5_RND_PRIM_TRISTRIP ? GL_TRIANGLE_STRIP :
+                     GL_POINTS;
+
+
   glLoadMatrixf(wvp.A[0]);
 
   ProgId = MH5_RndShaders[0].ProgId;
@@ -224,22 +230,22 @@ BOOL MH5_RndPrimCreateGrid( mh5PRIM *Pr, INT SplitW, INT SplitH, mh5VERTEX *V )
 {
   INT i, j, k, *Ind;
 
-  if ((Ind = malloc(sizeof(INT) * ((SplitW - 1) * (SplitH - 1) * 6))) == NULL)
+  if ((Ind = malloc(sizeof(INT) * ((SplitH - 1) * (SplitW * 2 + 1) - 1) )) == NULL)
     return FALSE;
 
-  for (i = 0, k = 0; i < SplitH - 1; i++)
-    for (j = 0; j < SplitW - 1; j++)
+  /* Set indexes */
+  for (k = 0, i = 0; i < SplitH - 1; i++)
+  {
+    for (j = 0; j < SplitW; j++)
     {
+      Ind[k++] = (i + 1) * SplitW + j;
       Ind[k++] = i * SplitW + j;
-      Ind[k++] = i * SplitW + j + 1;
-      Ind[k++] = (i + 1) * SplitW + j;
-
-      Ind[k++] = (i + 1) * SplitW + j;
-      Ind[k++] = i * SplitW + j + 1;
-      Ind[k++] = (i + 1) * SplitW + j + 1;
     }
+    if (i != SplitH - 2)
+      Ind[k++] = -1;
+  }
 
-  MH5_RndPrimCreate(Pr, V, SplitH * SplitW, Ind, (SplitW - 1) * (SplitH - 1) * 6);
+  MH5_RndPrimCreate(Pr, V, SplitH * SplitW, Ind, (SplitH - 1) * (SplitW * 2 + 1) - 1);
   free(Ind);
 
   return TRUE;

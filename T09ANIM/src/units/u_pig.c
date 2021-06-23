@@ -27,7 +27,7 @@ typedef struct
 static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
   Uni->PigDir = VecSet(1, 0, 0);
-  Uni->PigLoc = VecSet(0, 0, 0);
+  Uni->PigLoc = VecSet(1, 0, 1);
   Uni->PigRight = VecSet(0, 0, 1);
   MH5_RndPrimLoad(&Uni->Pig, "BIN/MODELS/pig.obj");
 } /* End of 'MH5_UnitInit' function */
@@ -42,35 +42,32 @@ static VOID MH5_UnitInit( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  if (Ani->JPov == 0)
+  if (Uni->PigLoc.X > -160 && Uni->PigLoc.Z > -160 && Uni->PigLoc.X < 160 && Uni->PigLoc.Z < 160)
   {
-    Uni->PigLoc =
-      VecAddVec(Uni->PigLoc,
-        VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20));
-  }
-  if (Ani->JPov == 4)
-  {
-    Uni->PigLoc =
-      VecAddVec(Uni->PigLoc,
-        VecMulNum(Uni->PigDir, -Ani->GlobalDeltaTime * 20));
-  }
-  if (Ani->JPov == 6)
-  {
-    Uni->PigLocOld = Uni->PigLoc;
-    Uni->PigLoc = VecSet(0, 0, 0);
-    Uni->P += 0.03;
-    Uni->PigLoc =
-      VecAddVec(Uni->PigLoc,
-        VecMulNum(Uni->PigRight, -Ani->GlobalDeltaTime * 20));
-  }
-  if (Ani->JPov == 2)
-  {
-    Uni->PigLocOld = Uni->PigLoc;
-    Uni->PigLoc = VecSet(0, 0, 0);
-    Uni->P -= 0.03;
-    Uni->PigLoc =
-      VecAddVec(Uni->PigLoc,
-        VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20));
+    if (Ani->JPov == 0)
+    {
+      Uni->PigLoc =
+        VecAddVec(Uni->PigLoc,
+          VecMulNum(Uni->PigDir, Ani->GlobalDeltaTime * 20));
+    }
+    if (Ani->JPov == 4)
+    {
+      Uni->PigLoc =
+        VecAddVec(Uni->PigLoc,
+          VecMulNum(Uni->PigDir, -Ani->GlobalDeltaTime * 20));
+    }
+    if (Ani->JPov == 6)
+    {
+      Uni->PigLoc =
+        VecAddVec(Uni->PigLoc,
+          VecMulNum(Uni->PigRight, -Ani->GlobalDeltaTime * 20));
+    }
+    if (Ani->JPov == 2)
+    {
+      Uni->PigLoc =
+        VecAddVec(Uni->PigLoc,
+          VecMulNum(Uni->PigRight, Ani->GlobalDeltaTime * 20));
+    }
   }
 } /* End of 'MH5_UnitResponse' function */
 
@@ -84,8 +81,7 @@ static VOID MH5_UnitResponse( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_PIG *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Pig, MatrMulMatr3(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->PigLoc), MatrRotateY(Uni->P)));
-  Uni->PigLoc = Uni->PigLocOld;
+  MH5_RndPrimDraw(&Uni->Pig, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->PigLoc)));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
