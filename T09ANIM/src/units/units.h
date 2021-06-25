@@ -4,9 +4,9 @@
  * PURPOSE     : 3D animation common declaration module.
  */
 
-#include "../anim/anim.h"
 #ifndef __units_h_
 #define __units_h_
+#include "../anim/anim.h"
 
 mh5UNIT * MH5_AnimUnitCreate( INT Size );
 mh5UNIT * MH5_UnitCreateBall( VOID );
@@ -15,6 +15,7 @@ mh5UNIT * MH5_UnitCreatePig( VOID );
 mh5UNIT * MH5_UnitCreateCtrl( VOID );
 mh5UNIT * MH5_UnitCreateTrees( VOID );
 mh5UNIT * MH5_UnitCreateHause( VOID );
+mh5UNIT * MH5_UnitCreateLand( VOID );
 
 #endif /* __units_h_ */
 /* END OF 'units.h' FILE */

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../rnd.h"
+#include "rndres.h"
 
 /***
  * Base shaders functions
@@ -198,13 +198,6 @@ VOID MH5_RndShdFree( INT ProgId )
     glDeleteProgram(ProgId);
 } /* End of 'MH5_RndShdLoad' function */
 
-/***
- * Shaders stock functions
- ***/
-
-/* Shadre stock array and it size */
-mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
-INT MH5_RndShadersSize;
 
 /* Shader stock initialization function.
  * ARGUMENTS: None.

@@ -11,6 +11,7 @@ typedef struct
   UNIT_BASE_FIELDS;
   VEC Pos;
   mh5PRIM Plosk;
+  INT TexId;
 } mh5UNIT_PLOSK;
 
 /* Unit initialization function.
@@ -23,7 +24,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreatePlosk(&Uni->Plosk, VecSet(-160, 0 ,-160), 0.1, 60, 60);
+  MH5_RndPrimCreatePlosk(&Uni->Plosk, VecSet(-180, 0 ,-180), 0.1, 60, 60);
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.

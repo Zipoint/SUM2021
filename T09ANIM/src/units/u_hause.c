@@ -1,4 +1,4 @@
-/* FILE NAME   : u_pig.c
+/* FILE NAME   : u_hause.c
  * PROGRAMMER  : MH5
  * LAST UPDATE : 18.06.2021
  * PURPOSE     : 3D animation common declaration module.
@@ -82,4 +82,4 @@ mh5UNIT * MH5_UnitCreateHause( VOID )
   return Uni;
 } /* End of 'MH5_UnitCreateBall' function */
 
-/* END OF 'u_pig.c' FILE */
+/* END OF 'u_hause.c' FILE */

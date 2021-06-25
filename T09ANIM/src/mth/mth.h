@@ -573,7 +573,7 @@ __inline MATR MatrScale( VEC S )
 {
   return MatrSet(S.X, 0, 0, 0,
                  0, S.Y, 0, 0,
-                 0, 0, S.Y, 0,
+                 0, 0, S.Z, 0,
                  0, 0, 0, 1);
 } /* end of 'MatrScale' function*/
 
@@ -716,6 +716,16 @@ __inline VEC4 Vec4Set( FLT A, FLT B, FLT C, FLT D )
   l.Z = C;
   l.W = D;
   return l;
+}
+
+__inline DBL Rnd0( VOID )
+{
+  return (DBL)rand() / RAND_MAX;
+}
+
+__inline DBL Rnd1( VOID )
+{
+  return 2.0 * rand() / RAND_MAX - 1;
 }
 #endif /* __mth_h_ */
 

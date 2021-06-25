@@ -12,6 +12,7 @@ typedef struct
   VEC Pos;
   mh5PRIM Trees;
   VEC TreeLoc;
+  DBL I, I2;
 } mh5UNIT_TREES;
 
 /* Unit initialization function.
@@ -24,6 +25,8 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
 {
+  Uni->I = Rnd1();
+  Uni->I2 = Rnd1();
   Uni->TreeLoc = VecSet(0, 1, 0);
   MH5_RndPrimLoad(&Uni->Trees, "BIN/MODELS/trees.obj");
 } /* End of 'MH5_UnitInit' function */
@@ -50,6 +53,7 @@ static VOID MH5_UnitResponse( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
 {
+  Uni->TreeLoc = VecSet(Uni->I * 180, 1, Uni->I2 * 180);
   MH5_RndPrimDraw(&Uni->Trees, MatrMulMatr(MatrScale(VecVec1(0.003)), MatrTranslate(Uni->TreeLoc)));
 } /* End of 'MH5_UnitRender' function */
 

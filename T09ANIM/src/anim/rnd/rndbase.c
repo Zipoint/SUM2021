@@ -5,7 +5,7 @@
  */
 
 #include "rnd.h"
-#include "rnd.h"
+#include "res/rndres.h"
 #include <wglew.h>
 #include <gl/wglext.h>
 
@@ -32,7 +32,6 @@ VOID MH5_RndInit( HWND hWnd )
     WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
     WGL_CONTEXT_MINOR_VERSION_ARB, 6,
     WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-                                  /* WGL_CONTEXT_CORE_PROFILE_BIT_ARB, */
     0
   };
 
@@ -79,12 +78,24 @@ VOID MH5_RndInit( HWND hWnd )
   /* Set default OpenGL parameters */
   glEnable(GL_DEPTH_TEST);
   glClearColor(0.30, 0.47, 0.8, 1);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ZERO);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glEnable(GL_PRIMITIVE_RESTART);
+  glPrimitiveRestartIndex(-1);
+
+  MH5_RndTexInit();
   MH5_RndShadersInit();
+  MH5_RndMtlInit();
 }
 
 VOID MH5_RndClose( VOID )
 {
   MH5_RndShadersClose();
+  MH5_RndMtlClose();
+  MH5_RndTexClose();
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(MH5_hRndGLRC);
   ReleaseDC(MH5_hRndWnd, MH5_hRndDC);
@@ -115,6 +126,14 @@ VOID MH5_RndResize(INT W, INT H)
 
 VOID MH5_RndStart( VOID )
 {
+  static DBL DelTime;
+
+  if ((DelTime += MH5_Anim.GlobalDeltaTime) > 1)
+  {
+    DelTime = 0;
+    MH5_RndShadersUpdate();
+  }
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

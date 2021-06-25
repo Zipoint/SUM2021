@@ -19,5 +19,6 @@ MATR
   MH5_RndMatrView,
   MH5_RndMatrProj,
   MH5_RndMatrVP;
+VEC MH5_RndCamLoc;
 
 /* END OF 'rnddata.h' FILE */

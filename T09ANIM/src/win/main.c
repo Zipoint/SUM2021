@@ -7,7 +7,6 @@
 #include "../anim/rnd/rnd.h"
 #include "../units/units.h"
 
-
 /* Window class name */
 #define MH5_WND_CLASS_NAME "My Summer class name"
 INT MH5_MouseWheel;
@@ -50,7 +49,6 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   wc.lpszClassName = MH5_WND_CLASS_NAME;
   wc.lpfnWndProc = MH5_MyWindowFunc;
 
-
   /* Register window class */
   if (!RegisterClass(&wc))
   {
@@ -70,17 +68,16 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
     hInstance,
     NULL);
 
-
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
 
-  MH5_AnimAddUnit(MH5_UnitCreateBall());
+  //MH5_AnimAddUnit(MH5_UnitCreateBall());
   MH5_AnimAddUnit(MH5_UnitCreatePlosk());
   MH5_AnimAddUnit(MH5_UnitCreatePig());
-  //MH5_AnimAddUnit(MH5_UnitCreateHause());
-  for (i = 0; i < 3; i++)
+  for (i = 0; i < 80; i++)
     MH5_AnimAddUnit(MH5_UnitCreateTrees());
   MH5_AnimAddUnit(MH5_UnitCreateCtrl());
+  //MH5_AnimAddUnit(MH5_UnitCreateLand());
 
   /* Message loop */
   while (TRUE)

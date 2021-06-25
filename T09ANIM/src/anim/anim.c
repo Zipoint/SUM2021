@@ -1,4 +1,4 @@
-/* FILE NAME   : anim.h
+/* FILE NAME   : anim.c
  * PROGRAMMER  : MH5
  * LAST UPDATE : 18.06.2021
  * PURPOSE     : 3D animation common declaration module.
@@ -54,7 +54,6 @@ VOID MH5_AnimCopyFrame( VOID )
 VOID MH5_AnimRender( VOID )
 {
   INT i;
-  static CHAR Buf[100];
 
   MH5_TimerResponse();
   MH5_AnimInputResponse();
@@ -66,10 +65,6 @@ VOID MH5_AnimRender( VOID )
   for (i = 0; i < MH5_Anim.NumOfUnits; i++)
     MH5_Anim.Units[i]->Render(MH5_Anim.Units[i], &MH5_Anim);
 
-  sprintf(Buf, "FPS: %.3f", MH5_Anim.FPS);
-  SetWindowText(MH5_Anim.hWnd, Buf);
-  if (MH5_Anim.JButClick[1] || MH5_Anim.KeysClick['P'])
-    MH5_Anim.IsPause = !MH5_Anim.IsPause;
   MH5_RndEnd();
 }
 
@@ -118,4 +113,4 @@ VOID MH5_AnimFlipFullScreen( VOID )
   }
 } /* End of 'FlipFullScreen' function */
 
-/* END OF 'anim.h' FILE */
+/* END OF 'anim.c' FILE */

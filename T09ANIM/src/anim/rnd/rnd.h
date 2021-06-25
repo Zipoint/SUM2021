@@ -8,6 +8,8 @@
 #define __rnd_h_
 
 #include "../../def.h"
+#include "../anim.h"
+#include "res/rndres.h"
 #include <stdio.h>
 
 #define GLEW_STATIC
@@ -17,6 +19,7 @@ extern HWND MH5_hRndWnd;
 extern HDC MH5_hRndDC;
 extern INT MH5_RndFrameW, MH5_RndFrameH;
 extern HGLRC MH5_hRndGLRC;
+extern VEC MH5_RndCamLoc;
 
 extern DBL
   MH5_RndProjSize,
@@ -49,21 +52,9 @@ typedef struct tagmh5PRIM
   mh5VERTEX *V;
   INT VBuf, VA, IBuf, NumOfElements, NumOfV;
 
+  INT MtlNo;
   MATR Trans;   /* Additional transformation matrix */
 } mh5PRIM;
-
-#define MH5_STR_MAX 300
-
-typedef struct tagmh5SHADER
-{
-  CHAR Name[MH5_STR_MAX];
-  INT ProgId;
-} mh5SHADER;
-
-#define MH5_MAX_SHADERS 30
-
-extern mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
-extern INT MH5_RndShadersSize;
 
 VOID MH5_RndCamSet( VEC Loc, VEC At, VEC Up1 );
 VOID MH5_RndCopyFrame( VOID );
@@ -73,7 +64,7 @@ VOID MH5_RndResize(INT W, INT H);
 VOID MH5_RndProjSet( VOID );
 VOID MH5_RndInit( HWND hWnd );
 VOID MH5_RndClose( VOID );
-VOID MH5_RndPrimCreate( mh5PRIM *Pr, mh5VERTEX *V, INT NumOfV, INT *I, INT NumOfI );
+VOID MH5_RndPrimCreate( mh5PRIM *Pr, mh5PRIM_TYPE Type, mh5VERTEX *V, INT NumOfV, INT *I, INT NumOfI );
 VOID MH5_RndPrimFree( mh5PRIM *Pr );
 BOOL MH5_RndPrimCreateSphere( mh5PRIM *Pr,VEC C, DBL R, INT SplitW, INT SplitH );
 VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World );
@@ -137,6 +128,59 @@ INT MH5_RndShaderAdd( CHAR *FileNamePrefix );
  * RETURNS: None.
  */
 VOID MH5_RndShadersUpdate( VOID );
+VOID MH5_RndPrimGridEvalNormals( INT SplitW, INT SplitH, mh5VERTEX *V );
+
+/***
+ * Primitive collection support
+ ***/
+
+/* Primitive collection data type */
+typedef struct tagmh5PRIMS
+{
+  INT NumOfPrims; /* Number of primitives in array */  
+  mh5PRIM *Prims; /* Array of primitives */
+  MATR Trans;     /* Common transformation matrix */
+} mh5PRIMS;
+
+/* Create array of primitives function.
+ * ARGUMENTS:
+ *   - pointer to primitives structure:
+ *       mh5PRIMS *Prs;
+ *   - number of primitives to be add:
+ *       INT NumOfPrims;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL MH5_RndPrimsCreate( mh5PRIMS *Prs, INT NumOfPrims );
+
+/* Delete array of primitives function.
+ * ARGUMENTS:
+ *   - pointer to primitives structure:
+ *       mh5PRIMS *Prs;
+ * RETURNS: None.
+ */
+VOID MH5_RndPrimsFree( mh5PRIMS *Prs );
+
+/* Draw array of primitives function.
+ * ARGUMENTS:
+ *   - pointer to primitives structure:
+ *       mh5PRIMS *Prs;
+ *   - global transformation matrix:
+ *       MATR World;
+ * RETURNS: None.
+ */
+VOID MH5_RndPrimsDraw( mh5PRIMS *Prs, MATR World );
+
+/* Load array of primitives from .G3DM file function.
+ * ARGUMENTS:
+ *   - pointer to primitives structure:
+ *       mh5PRIMS *Prs;
+ *   - file name:
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL MH5_RndPrimsLoad( mh5PRIMS *Prs, CHAR *FileName );
 
 #endif /* __rnd_h_ */
 
