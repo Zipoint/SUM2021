@@ -248,6 +248,10 @@
 							>
 						</File>
 						<File
+							RelativePath=".\src\anim\rnd\res\rndres.c"
+							>
+						</File>
+						<File
 							RelativePath=".\src\anim\rnd\res\rndres.h"
 							>
 						</File>
@@ -282,7 +286,15 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\units\u_hause.c"
+					RelativePath=".\src\units\u_doghouse.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_fance.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_helecopter.c"
 					>
 				</File>
 				<File
@@ -295,6 +307,10 @@
 				</File>
 				<File
 					RelativePath=".\src\units\u_plosk.c"
+					>
+				</File>
+				<File
+					RelativePath=".\src\units\u_sky.c"
 					>
 				</File>
 				<File

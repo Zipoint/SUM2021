@@ -9,6 +9,9 @@
 
 #include "rndres.h"
 
+mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
+INT MH5_RndShadersSize;
+
 /***
  * Base shaders functions
  ***/
@@ -240,6 +243,7 @@ INT MH5_RndShaderAdd( CHAR *FileNamePrefix )
     return 0;
   strncpy(MH5_RndShaders[MH5_RndShadersSize].Name, FileNamePrefix, MH5_STR_MAX - 1);
   MH5_RndShaders[MH5_RndShadersSize].ProgId = MH5_RndShdLoad(FileNamePrefix);
+
   return MH5_RndShadersSize++;
 } /* End of 'MH5_RndShadersAdd' function */
 

@@ -1,4 +1,4 @@
-/* FILE NAME   : u_plosk
+/* FILE NAME   : u_helecopter.c
  * PROGRAMMER  : MH5
  * LAST UPDATE : 18.06.2021
  * PURPOSE     : 3D animation common declaration module.
@@ -10,9 +10,8 @@ typedef struct
 {
   UNIT_BASE_FIELDS;
   VEC Pos;
-  mh5PRIM Plosk;
-  INT TexId;
-} mh5UNIT_PLOSK;
+  mh5PRIMS prs;
+} mh5UNIT_HELECOPTER;
 
 /* Unit initialization function.
  * ARGUMENTS:
@@ -22,9 +21,10 @@ typedef struct
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitInit( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitInit( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreatePlosk(&Uni->Plosk, VecSet(-50, 0 ,-50), 0.1, 31, 31);
+  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/AncientUgandan.g3dm");
+  Uni->prs.Trans = MatrRotateX(0);
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -35,9 +35,8 @@ static VOID MH5_UnitInit( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitResponse( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitResponse( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
@@ -48,9 +47,9 @@ static VOID MH5_UnitResponse( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitRender( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitRender( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Plosk, MatrIdentity());
+  MH5_RndPrimsDraw(&Uni->prs, MatrScale(VecVec1(0.1)));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
@@ -61,16 +60,16 @@ static VOID MH5_UnitRender( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitClose( mh5UNIT_PLOSK *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitClose( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimFree(&Uni->Plosk);
+  MH5_RndPrimsFree(&Uni->prs);
 } /* End of 'MH5_UnitClose' function */
 
-mh5UNIT * MH5_UnitCreatePlosk( VOID )
+mh5UNIT * MH5_UnitCreateHelecopter( VOID )
 {
   mh5UNIT *Uni;
 
-  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_PLOSK))) == NULL)
+  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_HELECOPTER))) == NULL)
     return NULL;
 
   /* Setup unit methods */
@@ -82,4 +81,4 @@ mh5UNIT * MH5_UnitCreatePlosk( VOID )
   return Uni;
 } /* End of 'MH5_UnitCreateBall' function */
 
-/* END OF 'u_plosk.c' FILE */
+/* END OF 'u_helecopter.c' FILE */

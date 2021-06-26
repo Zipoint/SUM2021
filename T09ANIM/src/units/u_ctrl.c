@@ -13,7 +13,9 @@ typedef struct
   DBL AngleSpeed, Speed;
   VEC CamDir, CamRight, CamUp, At;
   FLT RotY, RotX, CamDist;
+  BOOL InWire, InJOY;
 } mh5UNIT_CTRL;
+mh5UNIT_CTRL MH5_CTRL;
 
 /* Unit initialization function.
  * ARGUMENTS:
@@ -26,7 +28,7 @@ typedef struct
 static VOID MH5_UnitInit( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
   Uni->Speed = 20;
-  Uni->At = VecSet(0, 0, 0);
+  Uni->At = VecSet(-30, 30, 1);
 } /* End of 'MH5_UnitInit' function */
 
 
@@ -44,11 +46,23 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
   Uni->CamRight = VecSet(MH5_RndMatrView.A[0][0], MH5_RndMatrView.A[1][0], MH5_RndMatrView.A[2][0]);
   Uni->CamUp = VecSet(MH5_RndMatrView.A[0][1], MH5_RndMatrView.A[1][1], MH5_RndMatrView.A[2][1]);
 
-  Uni->CamDist = 5;
-  Uni->RotY += Ani->GlobalDeltaTime * (1.5 * Ani->JX);
-  Uni->RotX += Ani->GlobalDeltaTime * (1.5 * Ani->JY);
-
-  Uni->At = VecAddVec(Uni->At, VecMulNum(Uni->CamDir, (Ani->JBut[7] - Ani->JBut[6]) * 27 * Ani->GlobalDeltaTime));
+  Uni->CamDist = 0.1;
+  if (!Uni->InJOY)
+  {
+    Uni->RotY += Ani->GlobalDeltaTime * (1.5 * Ani->JX);
+    Uni->RotX += Ani->GlobalDeltaTime * (1.5 * Ani->JY);
+    Uni->At = VecAddVec(Uni->At, VecMulNum(Uni->CamDir, (Ani->JBut[7] - Ani->JBut[6]) * 10 * Ani->GlobalDeltaTime));
+  }
+  else
+  {
+    Uni->RotY += Ani->GlobalDeltaTime * (-0.2 * Ani->Keys[VK_LBUTTON] * Ani->Mdx + 3 * 0.47 * (Ani->Keys[VK_LEFT] - Ani->Keys[VK_RIGHT]));
+    Uni->RotX += Ani->GlobalDeltaTime * (-0.2 * Ani->Keys[VK_LBUTTON] * Ani->Mdy + 0.47 * (Ani->Keys[VK_UP] - Ani->Keys[VK_DOWN]));
+    Uni->RotY += Ani->GlobalDeltaTime * (1.5 * -(Ani->Keys['A'] - Ani->Keys['D']));
+    Uni->RotX += Ani->GlobalDeltaTime * (1.5 * -(Ani->Keys['W'] - Ani->Keys['S']));
+    Uni->At = VecAddVec(Uni->At, VecMulNum(Uni->CamDir, Ani->Mdz * 0.3 * Ani->GlobalDeltaTime));
+    Uni->At = VecAddVec(Uni->At, VecMulNum(Uni->CamDir, Ani->Mdz * Ani->Keys[VK_SHIFT] * 5 * Ani->GlobalDeltaTime));
+    Uni->At = VecAddVec(Uni->At, VecMulNum(Uni->CamDir, Ani->Mdz * Ani->Keys[VK_SHIFT] * Ani->Keys[VK_CONTROL] * 50 * Ani->GlobalDeltaTime));
+  }
 
   if (Ani->JButClick[0] == 1)
     MH5_AnimFlipFullScreen();
@@ -56,6 +70,8 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
     SendMessage(MH5_hRndWnd, WM_CLOSE, 0, 0);
   if (Ani->JButClick[1] == 1)
     Ani->IsPause = !Ani->IsPause;
+  if (Ani->KeysClick[VK_NUMPAD1])
+    Uni->InJOY = !Uni->InJOY;
 } /* End of 'MH5_UnitResponse' function */
 
 /* Unit render function.
@@ -68,7 +84,7 @@ static VOID MH5_UnitResponse( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
-  /*static CHAR buf[100];
+  static CHAR buf[100];
   MATR m1, m2, m3;
 
   m1 = MH5_RndMatrView;
@@ -81,25 +97,30 @@ static VOID MH5_UnitRender( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 
   sprintf(buf, "FPS: %.5f", Ani->FPS);
 
-  MH5_RndShdAddons[0] = 0.1;
-  MH5_RndShdAddons[1] = 0.1;
-  MH5_RndShdAddons[2] = 0;
-  MH5_RndFntDraw(buf, VecSet(3, Ani->H - 3, -0.1), 30);
-
-  MH5_RndShdAddons[0] = 1;
-  MH5_RndShdAddons[1] = 1;
-  MH5_RndShdAddons[2] = 0;
   MH5_RndFntDraw(buf, VecSet(0, Ani->H, 0), 30);
 
   MH5_RndMatrView = m1;
   MH5_RndMatrProj = m2;
-  MH5_RndMatrVP = m3;*/
+  MH5_RndMatrVP = m3;
 
   MH5_RndCamSet(PointTransform(VecSet(0, 0, Uni->CamDist),
                              MatrMulMatr3(MatrRotateX(-18 * 5 / 2.0 * Uni->RotX),
                                           MatrRotateY(-102 * 5 / 8.0 * Uni->RotY),
                                           MatrTranslate(Uni->At))), Uni->At, VecSet(0, 1, 0));
 
+  MH5_RndCamLoc = PointTransform(VecSet(0, 0, Uni->CamDist),
+                             MatrMulMatr3(MatrRotateX(-18 * 5 / 2.0 * Uni->RotX),
+                                          MatrRotateY(-102 * 5 / 8.0 * Uni->RotY),
+                                          MatrTranslate(Uni->At))), Uni->At, VecSet(0, 1, 0);
+
+  if (Ani->KeysClick[VK_NUMPAD0])
+  {
+    Uni->InWire = !Uni->InWire;
+    if (Uni->InWire)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

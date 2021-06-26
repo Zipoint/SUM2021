@@ -49,7 +49,6 @@ static VOID MH5_UnitInit( mh5UNIT_HMAP *Uni, mh5ANIM *Ani )
                                     hgt / 255.0,
                                     1 - i / (h - 1.0));
           }
-        Uni->TexId = MH5_RndTexAddImg("X:/PICS/stone.G24", w, h, 3, Bits);
       }
       MH5_RndPrimGridEvalNormals(w, h, V);
       MH5_RndPrimCreateGrid(&Uni->Land, w, h, V);
@@ -57,7 +56,6 @@ static VOID MH5_UnitInit( mh5UNIT_HMAP *Uni, mh5ANIM *Ani )
     }
   }
   Uni->LandLoc = VecSet(-50, 0, -50);
-  MH5_RndTexAdd("X:/PICS/stone.G24");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -82,8 +80,6 @@ static VOID MH5_UnitResponse( mh5UNIT_HMAP *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_HMAP *Uni, mh5ANIM *Ani )
 {
-  glActiveTexture(GL_TEXTURE0 + 1);
-  glBindTexture(GL_TEXTURE_2D, Uni->TexId);
   MH5_RndPrimDraw(&Uni->Land, MatrMulMatr(MatrScale(VecSet(132, 7, 132)), MatrTranslate(Uni->LandLoc)));
 } /* End of 'MH5_UnitRender' function */
 

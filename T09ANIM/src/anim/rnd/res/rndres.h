@@ -20,8 +20,8 @@ typedef struct tagmh5SHADER
   INT ProgId;
 } mh5SHADER;
 
-mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
-INT MH5_RndShadersSize;
+extern mh5SHADER MH5_RndShaders[MH5_MAX_SHADERS];
+extern INT MH5_RndShadersSize;
 
 typedef struct tagmh5TEXTURE
 {
@@ -30,8 +30,8 @@ typedef struct tagmh5TEXTURE
   UINT TexId;
 } mh5TEXTURE;
 
-mh5TEXTURE MH5_RndTextures[MH5_MAX_TEXTURE];
-INT MH5_RndTextureSize;
+extern mh5TEXTURE MH5_RndTextures[MH5_MAX_TEXTURE];
+extern INT MH5_RndTextureSize;
 
 typedef struct tagmh5MATERIAL
 {
@@ -47,12 +47,12 @@ typedef struct tagmh5MATERIAL
   CHAR ShaderStr[300];
 } mh5MATERIAL;
 
-mh5MATERIAL MH5_RndMaterials[MH5_MAX_MATERIALS];
-INT MH5_RndMaterialsSize;
+extern mh5MATERIAL MH5_RndMaterials[MH5_MAX_MATERIALS];
+extern INT MH5_RndMaterialsSize;
 
 INT MH5_RndMtlAdd( mh5MATERIAL *Mtl );
 INT MH5_RndTexAddImg( CHAR *Name, INT W, INT H, INT C, VOID *Bits );
-VOID MH5_RndTexAdd( CHAR *FileName);
+INT MH5_RndTexAddFromFile( CHAR *FileName);
 VOID MH5_RndTexInit( VOID );
 VOID MH5_RndTexClose( VOID );
 VOID MH5_RndMtlClose( VOID );
@@ -90,6 +90,10 @@ VOID MH5_RndFntClose( VOID );
  * RETURNS: None.
  */
 VOID MH5_RndFntDraw( CHAR *Str, VEC Pos, FLT Size );
+mh5MATERIAL MH5_RndMtlGetDef( VOID );
+VOID MH5_RndResClose( VOID );
+VOID MH5_RndResInit( VOID );
+INT MH5_RndMtlApply( INT MtlNo );
 
 
 #endif /* __rndres_h_ */

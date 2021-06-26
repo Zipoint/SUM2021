@@ -86,16 +86,12 @@ VOID MH5_RndInit( HWND hWnd )
   glEnable(GL_PRIMITIVE_RESTART);
   glPrimitiveRestartIndex(-1);
 
-  MH5_RndTexInit();
-  MH5_RndShadersInit();
-  MH5_RndMtlInit();
+  MH5_RndResInit();
 }
 
 VOID MH5_RndClose( VOID )
 {
-  MH5_RndShadersClose();
-  MH5_RndMtlClose();
-  MH5_RndTexClose();
+  MH5_RndResClose();
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(MH5_hRndGLRC);
   ReleaseDC(MH5_hRndWnd, MH5_hRndDC);

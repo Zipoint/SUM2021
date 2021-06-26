@@ -10,7 +10,7 @@ typedef struct
 {
   UNIT_BASE_FIELDS;
   VEC Pos;
-  mh5PRIM Trees;
+  mh5PRIMS Trees;
   VEC TreeLoc;
   DBL I, I2;
 } mh5UNIT_TREES;
@@ -27,8 +27,8 @@ static VOID MH5_UnitInit( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
 {
   Uni->I = Rnd1();
   Uni->I2 = Rnd1();
-  Uni->TreeLoc = VecSet(0, 1, 0);
-  MH5_RndPrimLoad(&Uni->Trees, "BIN/MODELS/trees.obj");
+  Uni->TreeLoc = VecSet(0, 0, 0);
+  MH5_RndPrimsLoad(&Uni->Trees, "BIN/MODELS/grass.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -53,8 +53,8 @@ static VOID MH5_UnitResponse( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
 {
-  Uni->TreeLoc = VecSet(Uni->I * 180, 1, Uni->I2 * 180);
-  MH5_RndPrimDraw(&Uni->Trees, MatrMulMatr(MatrScale(VecVec1(0.003)), MatrTranslate(Uni->TreeLoc)));
+  Uni->TreeLoc = VecSet(Uni->I * 40, 0, Uni->I2 * 40);
+  MH5_RndPrimsDraw(&Uni->Trees, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->TreeLoc)));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
@@ -67,7 +67,7 @@ static VOID MH5_UnitRender( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitClose( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimFree(&Uni->Trees);
+  MH5_RndPrimsFree(&Uni->Trees);
 } /* End of 'MH5_UnitClose' function */
 
 mh5UNIT * MH5_UnitCreateTrees( VOID )

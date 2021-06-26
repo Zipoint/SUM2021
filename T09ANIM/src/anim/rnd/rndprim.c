@@ -93,14 +93,12 @@ VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World )
 
   glLoadMatrixf(wvp.A[0]);
 
-  ProgId = MH5_RndShaders[0].ProgId;
-  glUseProgram(ProgId);
-  MH5_RndCamLoc = VecSet(10, 10, 10);
+  ProgId = MH5_RndMtlApply(Pr->MtlNo);
 
-  if ((loc = glGetUniformLocation(ProgId, "MatrWVP")) != -1)
-    glUniformMatrix4fv(loc, 1, FALSE, wvp.A[0]);
   if ((loc = glGetUniformLocation(ProgId, "Time")) != -1)
     glUniform1f(loc, MH5_Anim.Time);
+  if ((loc = glGetUniformLocation(ProgId, "MatrWVP")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, wvp.A[0]);
   if ((loc = glGetUniformLocation(ProgId, "MatrW")) != -1)
     glUniformMatrix4fv(loc, 1, FALSE, w.A[0]);
   if ((loc = glGetUniformLocation(ProgId, "MatrWInv")) != -1)
@@ -112,10 +110,12 @@ VOID MH5_RndPrimDraw( mh5PRIM *Pr, MATR World )
   if (Pr->IBuf == 0)
     glDrawArrays(gl_prim_type, 0, Pr->NumOfElements);
   else
+  {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Pr->IBuf);
     glDrawElements(gl_prim_type, Pr->NumOfElements, GL_UNSIGNED_INT, NULL);
     glBindVertexArray(0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  }
   glUseProgram(0);
 }
 
@@ -129,7 +129,7 @@ BOOL MH5_RndPrimCreateSphere( mh5PRIM *Pr, VEC C, DBL R, INT SplitW, INT SplitH 
   if ((V = malloc(sizeof(mh5VERTEX) * SplitW * SplitH)) == NULL)
     return FALSE;
 
-  for (i = 0, theta = 0; i < SplitH; i++, theta += PI / (SplitH - 1))
+  for (i = SplitH - 1, theta = 0; i >= 0; i--, theta += PI / (SplitH - 1))
     for (j = 0, phi = 0; j < SplitW; j++, phi += 2 * PI / (SplitW - 1))
     {
       x = sin(phi) * sin(theta);
@@ -182,7 +182,7 @@ BOOL MH5_RndPrimCreatePlosk( mh5PRIM *Pr, VEC C, DBL D, INT SplitW, INT SplitH )
     for (j = 0; j < SplitW; j++)
     {
       V[i * SplitW + j].P = VecSet(C.X + i * D * (SplitH - 1) + j * D,
-                                   C.Y + 0.8 * sin(i) + 0.2 * cos(j),
+                                   C.Y,
                                    C.Z + j * D * (SplitW - 1) + i * D);
     }
 

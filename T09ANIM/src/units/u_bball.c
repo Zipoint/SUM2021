@@ -10,7 +10,7 @@ typedef struct
 {
   UNIT_BASE_FIELDS;
   VEC Pos;
-  mh5PRIM Ball;
+  mh5PRIMS Ball;
 } mh5UNIT_BALL;
 
 /* Unit initialization function.
@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimCreateSphere(&Uni->Ball, VecSet(0, 2, 0), 2, 20, 20);
+  MH5_RndPrimsLoad(&Uni->Ball, "BIN/MODELS/Sun1.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -48,7 +48,7 @@ static VOID MH5_UnitResponse( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Ball, MatrMulMatr(MatrRotateY(Ani->Time), MatrTranslate(VecSet(9, 2 * fabs(0.8 * sin(Ani->Time * 5)), 3))));
+  MH5_RndPrimsDraw(&Uni->Ball, MatrTranslate(VecSet(17, 17, 17)));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
@@ -61,7 +61,7 @@ static VOID MH5_UnitRender( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitClose( mh5UNIT_BALL *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimFree(&Uni->Ball);
+  MH5_RndPrimsFree(&Uni->Ball);
 } /* End of 'MH5_UnitClose' function */
 
 mh5UNIT * MH5_UnitCreateBall( VOID )

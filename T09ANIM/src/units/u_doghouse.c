@@ -1,4 +1,4 @@
-/* FILE NAME   : u_hause.c
+/* FILE NAME   : u_dogehouse.c
  * PROGRAMMER  : MH5
  * LAST UPDATE : 18.06.2021
  * PURPOSE     : 3D animation common declaration module.
@@ -10,9 +10,8 @@ typedef struct
 {
   UNIT_BASE_FIELDS;
   VEC Pos;
-  mh5PRIM Hause;
-  VEC HauseLoc;
-} mh5UNIT_HAUSE;
+  mh5PRIMS prs;
+} mh5UNIT_DOGE;
 
 /* Unit initialization function.
  * ARGUMENTS:
@@ -22,10 +21,9 @@ typedef struct
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitInit( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitInit( mh5UNIT_DOGE *Uni, mh5ANIM *Ani )
 {
-  Uni->HauseLoc = VecSet(20, 20, 0.1);
-  MH5_RndPrimLoad(&Uni->Hause, "BIN/MODELS/med_house_final.obj");
+  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/doghouse0908.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -36,7 +34,7 @@ static VOID MH5_UnitInit( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitResponse( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitResponse( mh5UNIT_DOGE *Uni, mh5ANIM *Ani )
 {
 } /* End of 'MH5_UnitResponse' function */
 
@@ -48,9 +46,9 @@ static VOID MH5_UnitResponse( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitRender( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitRender( mh5UNIT_DOGE *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimDraw(&Uni->Hause, MatrMulMatr3(MatrScale(VecVec1(0.4)), MatrTranslate(Uni->HauseLoc), MatrRotateX(-90)));
+  MH5_RndPrimsDraw(&Uni->prs, MatrMulMatr3(MatrScale(VecVec1(10)),  MatrRotateY(90), MatrTranslate(VecSet(-14, 0, -15))));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
@@ -61,16 +59,16 @@ static VOID MH5_UnitRender( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitClose( mh5UNIT_HAUSE *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitClose( mh5UNIT_DOGE *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimFree(&Uni->Hause);
+  MH5_RndPrimsFree(&Uni->prs);
 } /* End of 'MH5_UnitClose' function */
 
-mh5UNIT * MH5_UnitCreateHause( VOID )
+mh5UNIT * MH5_UnitCreateHouse( VOID )
 {
   mh5UNIT *Uni;
 
-  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_HAUSE))) == NULL)
+  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_DOGE))) == NULL)
     return NULL;
 
   /* Setup unit methods */
@@ -82,4 +80,4 @@ mh5UNIT * MH5_UnitCreateHause( VOID )
   return Uni;
 } /* End of 'MH5_UnitCreateBall' function */
 
-/* END OF 'u_hause.c' FILE */
+/* END OF 'u_dogehouse.c' FILE */

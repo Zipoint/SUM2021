@@ -1,7 +1,9 @@
-/* FILE NAME: rndfnt.c
- * PROGRAMMER: MH5
- * DATE: 23.06.2021
- * PURPOSE: 3D animation rendering shader handle functions module.
+/* FILE NAME  : rndfnt.c
+ * PROGRAMMER : MH5
+ * LAST UPDATE: 24.06.2021
+ * PURPOSE    : 3D animation project.
+ *              Render subsystem implementation module.
+ *              Font handle module.
  */
 
 #include <stdio.h>
@@ -9,11 +11,19 @@
 
 #include "rndres.h"
 
+/***
+ * Font handle
+ ***/
+
+
+/* Font description structure */
 typedef struct tagmh5FONT
 {
   DWORD LineH, BaseH; /* Font line height and base line height in pixels */
   FLT AdvanceX[256];  /* Every letter shift right value (0 if no letter present) */
 } mh5FONT;
+
+/* Current font description */
 
 /* Font data */
 static mh5FONT MH5_RndFntFont;
@@ -23,6 +33,7 @@ static mh5PRIM MH5_RndFntChars[256];
 
 /* Font material */
 static INT MH5_RndFntMtlNo;
+
 
 /* Load font from .G3DF file function.
  * ARGUMENTS:
@@ -59,11 +70,11 @@ BOOL MH5_RndFntLoad( CHAR *FileName )
   fread(tex, 4, W * H, F);
   fclose(F);
 
-  //mtl = MH5_RndMtlGetDef();
+  mtl = MH5_RndMtlGetDef();
   strncpy(mtl.Name, FileName, MH5_MAX_TEXTURE - 1);
   mtl.Tex[0] = MH5_RndTexAddImg(FileName, W, H, 4, tex);
   free(tex);
-  mtl.ShdNo = MH5_RndShdLoad("FONT");
+  mtl.ShdNo = MH5_RndShaderAdd("FONT");
   MH5_RndFntMtlNo = MH5_RndMtlAdd(&mtl);
 
   for (i = 0; i < 256; i++)
@@ -125,8 +136,5 @@ VOID MH5_RndFntDraw( CHAR *Str, VEC Pos, FLT Size )
     Str++;
   }
 } /* End of 'MH5_RndFntDraw' function */
-
-/* END OF 'rndfnt.c' FILE */
-
 
 /* END OF 'rndfnt.c' FILE */

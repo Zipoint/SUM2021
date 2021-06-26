@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "res/rndres.h"
+#include "rnd.h"
 
 
 mh5MATERIAL * MH5_RndMtlGet( INT MtlNo )
@@ -36,6 +37,7 @@ BOOL MH5_RndPrimsCreate( mh5PRIMS *Prs, INT NumOfPrims )
   memset(Prs->Prims, 0, sizeof(mh5PRIM) * NumOfPrims);
   Prs->NumOfPrims = NumOfPrims;
   Prs->Trans = MatrIdentity();
+
   return TRUE;
 } /* End of 'MH5_RndPrimsCreate' function */
 
@@ -72,6 +74,7 @@ VOID MH5_RndPrimsDraw( mh5PRIMS *Prs, MATR World )
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
+
   for (i = 0; i < Prs->NumOfPrims; i++)
     if (MH5_RndMtlGet(Prs->Prims[i].MtlNo)->Trans != 1)
       MH5_RndPrimDraw(&Prs->Prims[i], World);
@@ -79,6 +82,7 @@ VOID MH5_RndPrimsDraw( mh5PRIMS *Prs, MATR World )
   for (i = 0; i < Prs->NumOfPrims; i++)
     if (MH5_RndMtlGet(Prs->Prims[i].MtlNo)->Trans != 1)
       MH5_RndPrimDraw(&Prs->Prims[i], World);
+
   glDisable(GL_CULL_FACE);
 } /* End of 'MH5_RndPrimsDraw' function */
 
@@ -184,7 +188,7 @@ BOOL MH5_RndPrimsLoad( mh5PRIMS *Prs, CHAR *FileName )
   ptr += sizeof(struct tagG3DMMTL) * NumOfMaterials;
   for (m = 0; m < NumOfMaterials; m++)
   {
-    mh5MATERIAL mtl;
+    mh5MATERIAL mtl = MH5_RndMtlGetDef();
 
     strcpy(mtl.Name, mtls[m].Name);
     mtl.Ka = mtls[m].Ka;
@@ -193,7 +197,7 @@ BOOL MH5_RndPrimsLoad( mh5PRIMS *Prs, CHAR *FileName )
     mtl.Ph = mtls[m].Ph;
     mtl.Trans = mtls[m].Trans;
     for (t = 0; t < 8; t++)
-      mtl.Tex[t] = mtls[m].Tex[t] == -1 ? -1 : MH5_RndTextureSize + mtls[m].Tex[t];
+      mtl.Tex[t] = (INT)mtls[m].Tex[t] == -1 ? -1 : MH5_RndTextureSize + mtls[m].Tex[t];
     MH5_RndMtlAdd(&mtl);
   }
 

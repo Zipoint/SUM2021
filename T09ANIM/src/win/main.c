@@ -71,12 +71,17 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
 
-  //MH5_AnimAddUnit(MH5_UnitCreateBall());
+  
+  MH5_AnimAddUnit(MH5_UnitCreateBall());
   MH5_AnimAddUnit(MH5_UnitCreatePlosk());
   MH5_AnimAddUnit(MH5_UnitCreatePig());
-  for (i = 0; i < 80; i++)
+  for (i = 0; i < 360; i++)
     MH5_AnimAddUnit(MH5_UnitCreateTrees());
   MH5_AnimAddUnit(MH5_UnitCreateCtrl());
+  MH5_AnimAddUnit(MH5_UnitCreateSky());
+  MH5_AnimAddUnit(MH5_UnitCreateFanse());
+  MH5_AnimAddUnit(MH5_UnitCreateHouse());
+  //MH5_AnimAddUnit(MH5_UnitCreateHelecopter());
   //MH5_AnimAddUnit(MH5_UnitCreateLand());
 
   /* Message loop */

@@ -22,6 +22,7 @@ static VOID MH5_AnimKeyboardInit( VOID )
   {
     MH5_Anim.Keys[i] >>= 7;
     MH5_Anim.KeysClick[i] = MH5_Anim.Keys[i] && !MH5_Anim.KeysOld[i];
+    MH5_Anim.KeysOld[i] = MH5_Anim.Keys[i];
   }
 }
 
@@ -34,6 +35,7 @@ static VOID MH5_AnimKeyboardResponse( VOID )
   {
     MH5_Anim.Keys[i] >>= 7;
     MH5_Anim.KeysClick[i] = MH5_Anim.Keys[i] && !MH5_Anim.KeysOld[i];
+    MH5_Anim.KeysOld[i] = MH5_Anim.Keys[i];
   }
 }
 
