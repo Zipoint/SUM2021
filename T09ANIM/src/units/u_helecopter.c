@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/AncientUgandan.g3dm");
+  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/Hitler.g3dm");
   Uni->prs.Trans = MatrRotateX(0);
 } /* End of 'MH5_UnitInit' function */
 
@@ -49,7 +49,7 @@ static VOID MH5_UnitResponse( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_HELECOPTER *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimsDraw(&Uni->prs, MatrScale(VecVec1(0.1)));
+  MH5_RndPrimsDraw(&Uni->prs, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(VecSet(0, 10, 0))));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

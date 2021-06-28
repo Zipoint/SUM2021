@@ -13,7 +13,7 @@ mh5UNIT * MH5_UnitCreateBall( VOID );
 mh5UNIT * MH5_UnitCreatePlosk( VOID );
 mh5UNIT * MH5_UnitCreatePig( VOID );
 mh5UNIT * MH5_UnitCreateCtrl( VOID );
-mh5UNIT * MH5_UnitCreateTrees( VOID );
+mh5UNIT * MH5_UnitCreateGrass( VOID );
 mh5UNIT * MH5_UnitCreateLand( VOID );
 mh5UNIT * MH5_UnitCreateHelecopter( VOID );
 mh5UNIT * MH5_UnitCreateSky( VOID );

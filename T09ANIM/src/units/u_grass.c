@@ -13,7 +13,7 @@ typedef struct
   mh5PRIMS Trees;
   VEC TreeLoc;
   DBL I, I2;
-} mh5UNIT_TREES;
+} mh5UNIT_GRASS;
 
 /* Unit initialization function.
  * ARGUMENTS:
@@ -23,12 +23,12 @@ typedef struct
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitInit( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitInit( mh5UNIT_GRASS *Uni, mh5ANIM *Ani )
 {
   Uni->I = Rnd1();
   Uni->I2 = Rnd1();
   Uni->TreeLoc = VecSet(0, 0, 0);
-  MH5_RndPrimsLoad(&Uni->Trees, "BIN/MODELS/grass.g3dm");
+  MH5_RndPrimsLoad(&Uni->Trees, "BIN/MODELS/GrassNew.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -39,7 +39,7 @@ static VOID MH5_UnitInit( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitResponse( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitResponse( mh5UNIT_GRASS *Uni, mh5ANIM *Ani )
 {
 } /* End of 'MH5_UnitResponse' function */
 
@@ -51,10 +51,10 @@ static VOID MH5_UnitResponse( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitRender( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitRender( mh5UNIT_GRASS *Uni, mh5ANIM *Ani )
 {
-  Uni->TreeLoc = VecSet(Uni->I * 40, 0, Uni->I2 * 40);
-  MH5_RndPrimsDraw(&Uni->Trees, MatrMulMatr(MatrScale(VecVec1(0.1)), MatrTranslate(Uni->TreeLoc)));
+  Uni->TreeLoc = VecSet(Uni->I * 40, 0, Uni->I2 * 30);
+  MH5_RndPrimsDraw(&Uni->Trees, MatrMulMatr(MatrScale(VecSet(0.6, 0.1, 0.6)), MatrTranslate(Uni->TreeLoc)));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.
@@ -65,16 +65,16 @@ static VOID MH5_UnitRender( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
  *       mh5ANIM *Ani;
  * RETURNS: None.
  */
-static VOID MH5_UnitClose( mh5UNIT_TREES *Uni, mh5ANIM *Ani )
+static VOID MH5_UnitClose( mh5UNIT_GRASS *Uni, mh5ANIM *Ani )
 {
   MH5_RndPrimsFree(&Uni->Trees);
 } /* End of 'MH5_UnitClose' function */
 
-mh5UNIT * MH5_UnitCreateTrees( VOID )
+mh5UNIT * MH5_UnitCreateGrass( VOID )
 {
   mh5UNIT *Uni;
 
-  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_TREES))) == NULL)
+  if ((Uni = MH5_AnimUnitCreate(sizeof(mh5UNIT_GRASS))) == NULL)
     return NULL;
 
   /* Setup unit methods */

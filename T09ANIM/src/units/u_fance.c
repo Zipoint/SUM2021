@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_FANCE *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/fancewood.g3dm");
+  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/Grass2.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.

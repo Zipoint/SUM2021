@@ -23,7 +23,7 @@ typedef struct
  */
 static VOID MH5_UnitInit( mh5UNIT_SKY *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/MinecraftTree.g3dm");
+  MH5_RndPrimsLoad(&Uni->prs, "BIN/MODELS/SKY1.g3dm");
 } /* End of 'MH5_UnitInit' function */
 
 /* Unit inter frame events handle function.
@@ -48,7 +48,7 @@ static VOID MH5_UnitResponse( mh5UNIT_SKY *Uni, mh5ANIM *Ani )
  */
 static VOID MH5_UnitRender( mh5UNIT_SKY *Uni, mh5ANIM *Ani )
 {
-  MH5_RndPrimsDraw(&Uni->prs, MatrMulMatr(MatrScale(VecVec1(0.01)), MatrTranslate(VecSet(10, 5, 10))));
+  MH5_RndPrimsDraw(&Uni->prs, MatrMulMatr(MatrScale(VecVec1(50)), MatrTranslate(VecSet(0, -60, 0))));
 } /* End of 'MH5_UnitRender' function */
 
 /* Unit deinitialization function.

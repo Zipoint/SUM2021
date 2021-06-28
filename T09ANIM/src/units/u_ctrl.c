@@ -28,7 +28,7 @@ mh5UNIT_CTRL MH5_CTRL;
 static VOID MH5_UnitInit( mh5UNIT_CTRL *Uni, mh5ANIM *Ani )
 {
   Uni->Speed = 20;
-  Uni->At = VecSet(-30, 30, 1);
+  Uni->At = VecSet(-30, 30, -1);
 } /* End of 'MH5_UnitInit' function */
 
 

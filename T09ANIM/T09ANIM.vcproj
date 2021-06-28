@@ -294,6 +294,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\units\u_grass.c"
+					>
+				</File>
+				<File
 					RelativePath=".\src\units\u_helecopter.c"
 					>
 				</File>
@@ -311,10 +315,6 @@
 				</File>
 				<File
 					RelativePath=".\src\units\u_sky.c"
-					>
-				</File>
-				<File
-					RelativePath=".\src\units\u_trees.c"
 					>
 				</File>
 				<File
